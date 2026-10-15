@@ -1519,6 +1519,7 @@
 
         let activeStreetFoodSuggestion = -1;
         let streetFoodEstimateTimeout = null;
+        let customFoodToastTimeout = null;
 
         function normalizeStreetFoodName(value) {
             return value.toLocaleLowerCase('vi')
@@ -1611,7 +1612,7 @@
                 const typedName = input.value.trim();
                 streetFoodEstimateTimeout = setTimeout(() => {
                     if (normalizeStreetFoodName(input.value) !== query) return;
-                    fillStreetFoodMacros(estimateStreetFoodMacros(typedName));
+                    fillStreetFoodMacros(estimateCustomFood(typedName));
                 }, 300);
             }
         }
@@ -1636,58 +1637,160 @@
             }
         }
 
-        function estimateStreetFoodMacros(name) {
+        function estimateCustomFood(name) {
             const text = normalizeStreetFoodName(name);
-            let p = 15;
-            let c = 45;
-            let f = 12;
+            let p = 12;
+            let c = 18;
+            let f = 5;
+            let cal = 165;
 
-            if (/tra sua|sua|latte|ca phe|bac xiu|sinh to|nuoc ep|nuoc mia|soda|tra dao|tra vai|tra tac|tra chanh/.test(text)) {
-                p = /sua|latte|tra sua|sinh to/.test(text) ? 6 : 1;
-                c = /tra sua|sua|latte|nuoc mia|soda|sinh to/.test(text) ? 55 : 30;
-                f = /dua|kem|sua|latte|tra sua|sinh to/.test(text) ? 12 : 1;
-                if (/tran chau|kem cheese|sau rieng|dua cot/.test(text)) { c += 15; f += 6; }
-            } else if (/che|banh|kem|flan|rau cau|mochi|donut|bong lan|tiramisu|cheesecake/.test(text)) {
-                p = /nhan thit|trung muoi/.test(text) ? 10 : 5;
-                c = /banh chung|banh tet|xoi/.test(text) ? 65 : 52;
-                f = /chien|ran|kem|dua|cheesecake|su kem/.test(text) ? 16 : 9;
-            } else if (/pho|bun|hu tieu|mi quang|mien|hoanh thanh/.test(text)) {
-                p = /bo|ga|thit|tom|ca|luon|moc|nem|cha/.test(text) ? 27 : 16;
-                c = /pho|bun|hu tieu|mi quang|mien|mi /.test(text) ? 66 : 48;
-                f = /bo kho|sa te|dua|mam|cha|nem|tieu/.test(text) ? 19 : 12;
-            } else if (/com|xoi|hanh|kimbap/.test(text)) {
-                p = /ga|bo|heo|suon|ca|vit|tom|thit|trung/.test(text) ? 30 : 17;
-                c = /xoi|com|kimbap/.test(text) ? 80 : 55;
-                f = 17;
-            } else if (/banh mi|banh cuon|banh gio|banh bao|banh xeo|banh khot|goi cuon|cha gio|nem/.test(text)) {
-                p = /thit|ga|bo|cha|tom|trung|nem/.test(text) ? 20 : 9;
-                c = 55;
-                f = /chien|xao|xiu mai|cha gio|banh xeo/.test(text) ? 20 : 12;
-            } else if (/ga|bo|heo|thit|ca|tom|trung|vit|suon/.test(text)) {
-                p = 28;
-                c = 35;
-                f = 16;
-            } else if (/xoai|chuoi|oi|dua hau|mit|sau rieng|cam|tao|buoi|thanh long/.test(text)) {
-                p = 2;
-                c = 28;
-                f = 1;
+            const directAliases = [
+                { aliases: ['com tam'], canonicalName: 'Cơm tấm sườn nướng' },
+                { aliases: ['pho bo'], canonicalName: 'Phở bò tái' },
+                { aliases: ['bun bo'], canonicalName: 'Bún bò Huế' },
+                { aliases: ['banh mi'], canonicalName: 'Bánh mì thịt nướng' }
+            ];
+            const directAlias = directAliases.find(entry => entry.aliases.includes(text));
+            const directFood = STREET_FOOD_AI_DATABASE.find(food =>
+                normalizeStreetFoodName(food.name) === text
+                || (directAlias && normalizeStreetFoodName(food.name) === normalizeStreetFoodName(directAlias.canonicalName))
+            );
+            if (directFood) {
+                return { ...directFood, name: name.trim(), isEstimate: false };
             }
 
-            if (/chien|ran|xao|quay|nuong|kho to|ba chi/.test(text)) f += 8;
-            if (/bun|com|banh mi|banh|xoi|mien|pho/.test(text)) c += 10;
-            if (/chay|rau|salad/.test(text)) {
-                p = Math.min(p, 16);
-                f = Math.min(f, 12);
-                c = Math.max(c, 35);
+            const eggMatch = text.match(/\b(hot vit lon|trung cut|trung vit|trung ga)\b/);
+            if (eggMatch) {
+                const eggValues = {
+                    'trung ga': { cal: 72, p: 6.3, c: 0.5, f: 4.8 },
+                    'trung vit': { cal: 130, p: 9, c: 1, f: 10 },
+                    'trung cut': { cal: 15, p: 1.2, c: 0.1, f: 1 },
+                    'hot vit lon': { cal: 180, p: 13, c: 1, f: 13 }
+                };
+                const countMatch = text.match(/(?:^|\s)(\d+(?:[.,]\d+)?)\s*(?:qua|cai|trung)\b/)
+                    || text.match(/\b(?:trung ga|trung vit|trung cut|hot vit lon)\s+(\d+(?:[.,]\d+)?)\b/);
+                const count = countMatch ? Number(countMatch[1].replace(',', '.')) : 1;
+                const egg = eggValues[eggMatch[1]];
+                cal = egg.cal * count;
+                p = egg.p * count;
+                c = egg.c * count;
+                f = egg.f * count;
+            } else if (/tra sua|sua tuoi|sua dau nanh|latte|bac xiu|ca phe|sinh to|nuoc mia|nuoc ngot|soda|tra dao|tra vai|tra tac|tra chanh|nuoc ep/.test(text)) {
+                if (/ca phe/.test(text) && !/ca phe sua/.test(text)) {
+                    p = 1;
+                    c = 20;
+                    f = 2;
+                } else if (/tra sua|latte|bac xiu|sinh to|sua tuoi|sua dau nanh|ca phe/.test(text)) {
+                    p = 5;
+                    c = 45;
+                    f = /kem cheese|dua cot|sua dac|sau rieng/.test(text) ? 11 : 7;
+                } else {
+                    p = 1;
+                    c = /nuoc mia|nuoc ngot|soda/.test(text) ? 38 : 32;
+                    f = 0;
+                }
+                cal = Math.round(p * 4 + c * 4 + f * 9);
+            } else if (/\bche\b|\bkem\b|flan|rau cau|mochi|donut|bong lan|tiramisu|cheesecake|banh ngot|sua chua|keo|socola|chocolate/.test(text)) {
+                p = 4;
+                c = 40;
+                f = 8;
+                cal = 248;
+            } else if (!/khoai|\bbap\b|\bngo\b|yen mach|banh mi|com|bun|pho|mien|gao|xoi|\bcu\b/.test(text)
+                && /\buc ga\b|\bga\b|tom|ca hoi|ca ngu|ca basa|\bca\b|trung|dau hu|dau phu|thit nac|bo than/.test(text)) {
+                if (/dau hu|dau phu/.test(text)) {
+                    p = 15;
+                    c = 2;
+                    f = 3;
+                    cal = 95;
+                } else if (/tom/.test(text)) {
+                    p = 20;
+                    c = 0;
+                    f = 1;
+                    cal = 99;
+                } else if (/ca hoi/.test(text)) {
+                    p = 20;
+                    c = 0;
+                    f = 5;
+                    cal = 125;
+                } else {
+                    p = 23;
+                    c = 0;
+                    f = 1.5;
+                    cal = 110;
+                }
+            } else if (/khoai|\bbap\b|\bngo\b|yen mach|banh mi|com|bun|pho|mien|gao|xoi|\bcu\b/.test(text)) {
+                if (/khoai tay/.test(text)) {
+                    p = 2;
+                    c = 19;
+                    f = 0.1;
+                    cal = 86;
+                } else if (/khoai/.test(text)) {
+                    p = 1.6;
+                    c = 20;
+                    f = 0.1;
+                    cal = 86;
+                } else if (/bap|ngo/.test(text)) {
+                    p = 3;
+                    c = 22;
+                    f = 1;
+                    cal = 110;
+                } else if (/yen mach/.test(text)) {
+                    p = 3;
+                    c = 18;
+                    f = 2;
+                    cal = 102;
+                } else if (/banh mi/.test(text)) {
+                    p = 2.5;
+                    c = 22;
+                    f = 1;
+                    cal = 107;
+                } else if (/com|gao/.test(text)) {
+                    p = 2.7;
+                    c = 27;
+                    f = 0.3;
+                    cal = 122;
+                } else {
+                    p = 2.5;
+                    c = 24;
+                    f = 0.3;
+                    cal = 110;
+                }
             }
+
+            const hasAddedFat = /\b(chien|xao|quay|xoi mo)\b/.test(text)
+                || /mỡ|bơ|xối mỡ/i.test(name);
+            if (!eggMatch && hasAddedFat) {
+                f += 10;
+                cal = Math.round(p * 4 + c * 4 + f * 9);
+            }
+
             return {
                 name: name.trim(),
-                cal: Math.round(p * 4 + c * 4 + f * 9),
+                cal,
                 p,
                 c,
                 f,
                 isEstimate: true
             };
+        }
+
+        function showCustomFoodLookupToast(name) {
+            let toast = document.getElementById('customFoodLookupToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'customFoodLookupToast';
+                toast.setAttribute('role', 'status');
+                toast.setAttribute('aria-live', 'polite');
+                toast.className = 'fixed bottom-5 right-5 z-[100] max-w-sm rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-opacity duration-300';
+                document.body.append(toast);
+            }
+            toast.textContent = `✨ AI đã tra cứu và điền thành công thông số dinh dưỡng chuẩn cho ${name}!`;
+            toast.classList.remove('hidden', 'opacity-0');
+            clearTimeout(customFoodToastTimeout);
+            customFoodToastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0');
+                customFoodToastTimeout = setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3200);
         }
 
         function lookupStreetFoodMacros() {
@@ -1701,14 +1804,8 @@
                 return;
             }
 
-            const normalizedQuery = normalizeStreetFoodName(name);
-            const exactMatch = STREET_FOOD_AI_DATABASE.find(food => normalizeStreetFoodName(food.name) === normalizedQuery);
-            const partialMatch = exactMatch || STREET_FOOD_AI_DATABASE.find(food => {
-                const normalizedName = normalizeStreetFoodName(food.name);
-                return normalizedName.includes(normalizedQuery) || normalizedQuery.includes(normalizedName);
-            });
-            const food = partialMatch || estimateStreetFoodMacros(name);
-            fillStreetFoodMacros(food);
+            fillStreetFoodMacros(estimateCustomFood(name));
+            showCustomFoodLookupToast(name);
         }
 
         function renderFoodLogSelector() {

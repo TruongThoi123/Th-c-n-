@@ -50,10 +50,10 @@
             background-color: #f0fdf4 !important;
         }
         .page-view {
-            animation: fadeIn 0.2s ease-in-out;
+            animation: fadeIn 0.35s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
+            from { opacity: 0; transform: translateY(14px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -99,8 +99,8 @@
                     </button>
                 </div>
 
-                <!-- MENU PHÂN TRANG TRÊN MÁY TÍNH (5 TRANG ĐỘC LẬP) -->
-                <div class="hidden lg:flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold gap-1">
+                <!-- MENU PHÂN TRANG TRÊN MÁY TÍNH (6 TRANG ĐỘC LẬP) -->
+                <div class="hidden lg:flex flex-wrap items-center justify-center bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold gap-1">
                     <button onclick="navigatePage(1)" id="deskNav-1" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 nav-active-desktop">
                         <i class="fa-solid fa-chart-pie"></i><span>1. Tổng quan & Hồ sơ</span>
                     </button>
@@ -108,13 +108,16 @@
                         <i class="fa-solid fa-utensils"></i><span>2. Thực đơn 4 Bữa</span>
                     </button>
                     <button onclick="navigatePage(3)" id="deskNav-3" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-droplet"></i><span>3. Nước & Đồ uống</span>
+                        <i class="fa-solid fa-calculator"></i><span>3. Nhật ký & Macro</span>
                     </button>
                     <button onclick="navigatePage(4)" id="deskNav-4" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-book-open"></i><span>4. Kho Thực phẩm</span>
+                        <i class="fa-solid fa-droplet"></i><span>4. Nước & Đồ uống</span>
                     </button>
                     <button onclick="navigatePage(5)" id="deskNav-5" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-cart-shopping"></i><span>5. Đi chợ & Skills</span>
+                        <i class="fa-solid fa-book-open"></i><span>5. Kho Thực phẩm</span>
+                    </button>
+                    <button onclick="navigatePage(6)" id="deskNav-6" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-cart-shopping"></i><span>6. Đi chợ & Skills</span>
                     </button>
                 </div>
             </div>
@@ -346,7 +349,7 @@
                                 💧 Nhu cầu nước cá nhân của bạn hôm nay: <strong id="quickWaterSummary" class="text-sky-600">2.90 Lít</strong>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="navigatePage(3)" class="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold transition">
+                                <button onclick="navigatePage(4)" class="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold transition">
                                     <i class="fa-solid fa-droplet mr-1"></i>Chỉnh thông số Nước
                                 </button>
                                 <button onclick="navigatePage(2)" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
@@ -400,9 +403,132 @@
         </section>
 
         <!-- =========================================================================
-             TRANG 3: TRẠM NƯỚC CÁ NHÂN HÓA ĐA BIẾN & ĐỒ UỐNG HIỆU SUẤT
+             TRANG 3: NHẬT KÝ & TÍNH CHẤT ĐỒ ĂN
         ========================================================================== -->
         <section id="page-3" class="page-view hidden">
+            <div class="space-y-6">
+                <div class="card-pro p-5 sm:p-6 rounded-3xl">
+                    <div class="mb-5">
+                        <h2 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center">
+                            <span class="w-7 h-7 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mr-2.5 text-xs">3</span>
+                            Nhật Ký & Tính Chất Đồ Ăn
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Chọn món từ toàn bộ kho thực phẩm, nhập khẩu phần và theo dõi macro nạp trong ngày.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div class="space-y-3">
+                            <div id="foodLogDatabaseFields" class="space-y-3">
+                                <div>
+                                    <label for="foodLogSearch" class="block text-xs font-bold text-slate-700 mb-1.5">Tìm món trong kho thực phẩm</label>
+                                    <input id="foodLogSearch" type="search" oninput="filterFoodLogOptions()" placeholder="Tìm ức gà, cơm, bơ, phở..."
+                                        class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label for="foodLogFoodSelect" class="block text-xs font-bold text-slate-700 mb-1.5">Chọn món ăn</label>
+                                    <select id="foodLogFoodSelect" onchange="updateFoodLogUnit(); updateFoodLogPreview()"
+                                        class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-300 text-sm font-semibold focus:outline-none focus:border-emerald-500"></select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-[1fr_auto] gap-3 items-end">
+                                <div>
+                                    <label for="foodLogAmount" class="block text-xs font-bold text-slate-700 mb-1.5">Số lượng ăn</label>
+                                    <input id="foodLogAmount" type="number" min="0.1" step="any" value="100" oninput="updateFoodLogPreview()"
+                                        class="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <span id="foodLogUnitLabel" class="pb-2.5 text-xs font-bold text-slate-500">g</span>
+                            </div>
+
+                            <div class="flex items-center gap-3 pt-1">
+                                <label for="foodLogMode" class="text-xs font-bold text-slate-700">Chế độ nhập tự do</label>
+                                <select id="foodLogMode" onchange="toggleFoodLogMode()" class="px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-semibold focus:outline-none">
+                                    <option value="database">Chọn trong danh sách</option>
+                                    <option value="custom">Tự nhập món ngoài danh sách</option>
+                                </select>
+                            </div>
+
+                            <div id="foodLogCustomFields" class="hidden grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+                                <div class="col-span-2 sm:col-span-3">
+                                    <label for="customFoodName" class="block text-xs font-bold text-slate-700 mb-1">Tên món ăn</label>
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        <input id="customFoodName" type="text" maxlength="100" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="streetFoodSuggestions" aria-expanded="false" oninput="handleStreetFoodNameInput()" onkeydown="handleStreetFoodSuggestionKeydown(event)" placeholder="Ví dụ: Bánh cuốn"
+                                            class="min-w-0 flex-1 px-3 py-2 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none focus:border-emerald-500">
+                                        <button type="button" onclick="lookupStreetFoodMacros()" class="shrink-0 px-3 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-extrabold transition">
+                                            ✨ Tra cứu thông số bằng AI
+                                        </button>
+                                    </div>
+                                    <div id="streetFoodSuggestions" role="listbox" class="hidden mt-1 max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-lg"></div>
+                                    <p id="streetFoodLookupStatus" class="hidden mt-1.5 text-[11px] font-semibold text-emerald-700" role="status" aria-live="polite"></p>
+                                </div>
+                                <div>
+                                    <label for="foodLogCustomCal" class="block text-xs font-bold text-slate-700 mb-1">Calo / khẩu phần</label>
+                                    <input id="foodLogCustomCal" type="number" min="0" step="any" placeholder="kcal" oninput="updateFoodLogPreview()"
+                                        class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="foodLogCustomP" class="block text-xs font-bold text-slate-700 mb-1">Đạm P / khẩu phần</label>
+                                    <input id="foodLogCustomP" type="number" min="0" step="any" placeholder="g" oninput="updateFoodLogPreview()"
+                                        class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="foodLogCustomC" class="block text-xs font-bold text-slate-700 mb-1">Tinh bột C / khẩu phần</label>
+                                    <input id="foodLogCustomC" type="number" min="0" step="any" placeholder="g" oninput="updateFoodLogPreview()"
+                                        class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="foodLogCustomF" class="block text-xs font-bold text-slate-700 mb-1">Chất béo F / khẩu phần</label>
+                                    <input id="foodLogCustomF" type="number" min="0" step="any" placeholder="g" oninput="updateFoodLogPreview()"
+                                        class="w-full px-2.5 py-2 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none">
+                                </div>
+                                <p class="col-span-2 sm:col-span-3 text-[11px] text-amber-800">Macro tự nhập được tính theo một khẩu phần; số lượng bên trên nhân theo số khẩu phần đã ăn.</p>
+                            </div>
+                            <p id="foodLogError" class="hidden text-xs font-semibold text-rose-600" role="alert"></p>
+                            <button onclick="addCustomFoodLog()" class="w-full px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold shadow-sm transition">
+                                <i class="fa-solid fa-plus mr-1.5"></i>Thêm vào nhật ký ăn hôm nay
+                            </button>
+                        </div>
+
+                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 sm:p-5">
+                            <h3 class="font-extrabold text-emerald-900 text-sm mb-1"><i class="fa-solid fa-eye mr-1.5"></i>Xem trước trực tiếp</h3>
+                            <p id="foodLogPreviewName" class="text-xs text-slate-600 mb-4">Chọn món và nhập khẩu phần để xem dinh dưỡng.</p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white rounded-xl p-3 border border-orange-100">
+                                    <span class="text-[11px] font-bold text-orange-700">Calo</span>
+                                    <div><strong id="foodLogPreviewCal" class="text-xl font-black text-slate-900">0</strong><span class="text-xs text-slate-500 ml-1">kcal</span></div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-rose-100">
+                                    <span class="text-[11px] font-bold text-rose-700">Đạm (P)</span>
+                                    <div><strong id="foodLogPreviewP" class="text-xl font-black text-slate-900">0</strong><span class="text-xs text-slate-500 ml-1">g</span></div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-amber-100">
+                                    <span class="text-[11px] font-bold text-amber-700">Tinh bột (C)</span>
+                                    <div><strong id="foodLogPreviewC" class="text-xl font-black text-slate-900">0</strong><span class="text-xs text-slate-500 ml-1">g</span></div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-sky-100">
+                                    <span class="text-[11px] font-bold text-sky-700">Chất béo (F)</span>
+                                    <div><strong id="foodLogPreviewF" class="text-xl font-black text-slate-900">0</strong><span class="text-xs text-slate-500 ml-1">g</span></div>
+                                </div>
+                            </div>
+                            <p id="foodLogPreviewBasis" class="text-[11px] text-slate-500 mt-3"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-pro p-5 sm:p-6 rounded-3xl">
+                    <h2 class="text-base font-extrabold text-slate-900 mb-4">Tổng kết dinh dưỡng từ nhật ký hôm nay</h2>
+                    <div id="foodLogSummary" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-6"></div>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-800 mb-3">Danh sách món đã ăn</h3>
+                        <div id="foodLogTable" class="overflow-x-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================================
+             TRANG 4: TRẠM NƯỚC CÁ NHÂN HÓA ĐA BIẾN & ĐỒ UỐNG HIỆU SUẤT
+        ========================================================================== -->
+        <section id="page-4" class="page-view hidden">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 <!-- Cột Trái (5 cột): Bảng Điều Chỉnh Thông Số Nước Theo Từng Người -->
@@ -539,14 +665,14 @@
         </section>
 
         <!-- =========================================================================
-             TRANG 4: ĐẠI TỪ ĐIỂN THỰC PHẨM (CÓ PHÂN TRANG SỐ 1, 2, 3...)
+             TRANG 5: ĐẠI TỪ ĐIỂN THỰC PHẨM (CÓ PHÂN TRANG SỐ 1, 2, 3...)
         ========================================================================== -->
-        <section id="page-4" class="page-view hidden">
-            <div class="card-pro p-5 sm:p-6 rounded-3xl">
+        <section id="page-5" class="page-view hidden">
+            <div id="section-encyclopedia" class="card-pro p-5 sm:p-6 rounded-3xl scroll-mt-24">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
                     <div>
                         <h2 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center">
-                            <span class="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mr-2.5 text-xs">4</span>
+                            <span class="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mr-2.5 text-xs">5</span>
                             Đại Từ Điển Thực Phẩm Việt Nam (<span id="totalFoodCountBadge">56</span> Món Chọn Lọc)
                         </h2>
                         <p class="text-xs text-slate-500 mt-0.5">
@@ -582,9 +708,9 @@
         </section>
 
         <!-- =========================================================================
-             TRANG 5: DANH SÁCH ĐI CHỢ (QUY ĐỔI ĐỒ SỐNG) & THÁP KỸ NĂNG CALISTHENICS
+             TRANG 6: DANH SÁCH ĐI CHỢ (QUY ĐỔI ĐỒ SỐNG) & THÁP KỸ NĂNG CALISTHENICS
         ========================================================================== -->
-        <section id="page-5" class="page-view hidden">
+        <section id="page-6" class="page-view hidden">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
                 <!-- Cột Trái (7 cột): Danh sách đi chợ tự động quy đổi Gạo khô / Thịt sống -->
@@ -640,8 +766,8 @@
 
     </main>
 
-    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY MÀN HÌNH ĐIỆN THOẠI (5 TRANG) -->
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-5 text-[10px] font-bold text-slate-400 shadow-lg">
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY MÀN HÌNH ĐIỆN THOẠI (6 TRANG) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-6 text-[10px] font-bold text-slate-400 shadow-lg">
         <button onclick="navigatePage(1)" id="mobNav-1" class="flex flex-col items-center py-1 nav-active-mobile">
             <i class="fa-solid fa-chart-pie text-base mb-0.5"></i>
             <span>1. Tổng quan</span>
@@ -651,16 +777,20 @@
             <span>2. Thực đơn</span>
         </button>
         <button onclick="navigatePage(3)" id="mobNav-3" class="flex flex-col items-center py-1">
-            <i class="fa-solid fa-droplet text-base mb-0.5"></i>
-            <span>3. Trạm Nước</span>
+            <i class="fa-solid fa-calculator text-base mb-0.5"></i>
+            <span>3. Nhật ký</span>
         </button>
         <button onclick="navigatePage(4)" id="mobNav-4" class="flex flex-col items-center py-1">
-            <i class="fa-solid fa-book-open text-base mb-0.5"></i>
-            <span>4. Kho Món</span>
+            <i class="fa-solid fa-droplet text-base mb-0.5"></i>
+            <span>4. Trạm Nước</span>
         </button>
         <button onclick="navigatePage(5)" id="mobNav-5" class="flex flex-col items-center py-1">
+            <i class="fa-solid fa-book-open text-base mb-0.5"></i>
+            <span>5. Kho Món</span>
+        </button>
+        <button onclick="navigatePage(6)" id="mobNav-6" class="flex flex-col items-center py-1">
             <i class="fa-solid fa-cart-shopping text-base mb-0.5"></i>
-            <span>5. Đi chợ</span>
+            <span>6. Đi chợ</span>
         </button>
     </nav>
 
@@ -842,6 +972,7 @@
         ];
 
         let streetFoodLogs = [];
+        let customFoodLogs = [];
         let weightHistory = [
             { date: 'Tuần trước', weight: 54.5 },
             { date: 'Hôm nay', weight: 55.0 }
@@ -861,10 +992,14 @@
         let currentCGram = 434;
         let currentFGram = 70;
 
-        // ==================== ĐIỀU HƯỚNG 5 TRANG SPA ====================
+        // ==================== ĐIỀU HƯỚNG 6 TRANG SPA ====================
         function navigatePage(pageNum) {
+            if (!Number.isInteger(pageNum) || pageNum < 1 || pageNum > 6) return;
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
             currentPage = pageNum;
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const sec = document.getElementById(`page-${i}`);
                 const dBtn = document.getElementById(`deskNav-${i}`);
                 const mBtn = document.getElementById(`mobNav-${i}`);
@@ -881,7 +1016,6 @@
                     else mBtn.classList.remove('nav-active-mobile');
                 }
             }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ==================== LƯU & TẢI DỮ LIỆU LOCALSTORAGE ====================
@@ -904,6 +1038,7 @@
                 consumedCups,
                 mealSelections,
                 streetFoodLogs,
+                customFoodLogs,
                 weightHistory
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -934,6 +1069,7 @@
                 if (typeof s.consumedCups === 'number') consumedCups = s.consumedCups;
                 if (Array.isArray(s.mealSelections) && s.mealSelections.length === 4) mealSelections = s.mealSelections;
                 if (Array.isArray(s.streetFoodLogs)) streetFoodLogs = s.streetFoodLogs;
+                if (Array.isArray(s.customFoodLogs)) customFoodLogs = s.customFoodLogs;
                 if (Array.isArray(s.weightHistory) && s.weightHistory.length > 0) weightHistory = s.weightHistory;
             } catch (e) { console.error(e); }
         }
@@ -941,6 +1077,7 @@
         function resetDailyLog() {
             consumedCups = 0;
             streetFoodLogs = [];
+            customFoodLogs = [];
             mealSelections.forEach(m => m.eaten = false);
             calculateAll();
         }
@@ -1068,7 +1205,7 @@
             const waterLiters = (exactWaterMl / 1000).toFixed(2);
             totalCupsNeeded = Math.max(6, Math.min(20, Math.round(exactWaterMl / 250)));
 
-            // Hiển thị bóc tách công thức nước ở Trang 3
+            // Hiển thị bóc tách công thức nước ở Trang 4
             document.getElementById('wBaseText').innerText = `${baseWaterMl.toLocaleString()} ml`;
             document.getElementById('wWorkoutText').innerText = `+${workoutWaterMl.toLocaleString()} ml (${workoutMins}p)`;
             document.getElementById('wEnvText').innerText = `${envWaterMl >= 0 ? '+' : ''}${envWaterMl.toLocaleString()} ml`;
@@ -1101,7 +1238,7 @@
                 </div>
             `;
 
-            // 5. Đánh giá Calisthenics & Chuẩn Skills (Trang 5)
+            // 5. Đánh giá Calisthenics & Chuẩn Skills (Trang 6)
             const heightM = height / 100;
             const bmi = (weight / (heightM * heightM)).toFixed(1);
             const idealMin = Math.round(20.5 * heightM * heightM);
@@ -1146,6 +1283,7 @@
             renderEncyclopedia();
             renderGroceryList();
             updateLiveTracker();
+            renderFoodLogSummary();
             saveState();
         }
 
@@ -1287,6 +1425,558 @@
                     <button onclick="removeStreetFoodLog(${idx})" class="text-rose-500 hover:text-rose-700 font-bold"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             `).join('');
+        }
+
+        const FOOD_LOG_CATEGORIES = [
+            { id: 'protein', label: '🥩 Đạm (Protein)' },
+            { id: 'carb', label: '🍚 Tinh bột (Carb)' },
+            { id: 'fat', label: '🥑 Chất béo (Fat)' },
+            { id: 'veg', label: '🥦 Rau củ & trái cây' },
+            { id: 'street', label: '🍜 Món ăn ngoài / đồ uống' }
+        ];
+
+        const STREET_FOOD_AI_DATABASE_GROUPS = [
+            {
+                category: 'Món nước',
+                items: [
+                    'Phở bò tái|480|28|60|13', 'Phở bò chín|520|30|62|16', 'Phở bò viên|510|25|64|15', 'Phở gà|470|29|58|11',
+                    'Phở gà đùi|560|31|58|22', 'Phở sốt vang|590|30|62|24', 'Phở cuốn bò|390|22|48|12', 'Phở trộn bò|550|27|68|17',
+                    'Bún bò Huế|570|30|72|18', 'Bún riêu cua|480|22|65|13', 'Bún chả Hà Nội|620|30|72|22', 'Bún thịt nướng|590|28|70|20',
+                    'Bún bò Nam Bộ|610|27|78|20', 'Bún mắm|560|30|64|18', 'Bún cá|460|27|60|10', 'Bún mọc|470|24|62|12',
+                    'Bún thang|450|25|58|11', 'Bún đậu mắm tôm|680|28|72|32', 'Bún nem nướng|620|28|74|22', 'Bún chả cá|490|27|65|13',
+                    'Hủ tiếu Nam Vang|520|27|68|14', 'Hủ tiếu bò kho|590|30|70|20', 'Hủ tiếu mực|480|26|64|12', 'Hủ tiếu sa tế|640|29|72|27',
+                    'Mì Quảng gà|560|29|68|18', 'Mì Quảng tôm thịt|610|30|72|22', 'Mì Quảng ếch|590|32|69|19', 'Mì Quảng chay|470|16|74|13',
+                    'Mì vịt tiềm|680|34|72|27', 'Mì hoành thánh|520|25|68|15', 'Miến gà|430|28|55|9', 'Miến lươn|540|27|64|18'
+                ]
+            },
+            {
+                category: 'Cơm & món mặn',
+                items: [
+                    'Cơm tấm sườn nướng|650|32|82|21', 'Cơm tấm sườn bì chả|780|36|88|31', 'Cơm tấm sườn trứng|760|38|84|30', 'Cơm gà xối mỡ|720|34|78|29',
+                    'Cơm gà luộc|560|32|72|12', 'Cơm gà Hải Nam|650|35|78|19', 'Cơm chiên dương châu|680|23|88|24', 'Cơm chiên hải sản|640|27|84|18',
+                    'Cơm chiên trứng|590|17|85|17', 'Cơm chiên gà|650|29|86|17', 'Cơm bò lúc lắc|690|36|76|23', 'Cơm sườn ram|670|34|82|21',
+                    'Cơm cá kho tộ|610|32|76|17', 'Cơm thịt kho trứng|720|32|78|30', 'Cơm ba chỉ rang cháy cạnh|740|29|78|34', 'Cơm thịt nướng|650|31|82|20',
+                    'Cơm cá chiên|620|30|76|20', 'Cơm cá sốt cà|570|29|76|13', 'Cơm đậu hũ sốt cà|520|19|78|13', 'Cơm sườn cốt lết|700|36|80|26',
+                    'Cơm niêu cá kho|650|33|80|18', 'Cơm bò xào lúc lắc|680|35|78|22', 'Cơm gà rô-ti|700|35|80|24', 'Cơm vịt quay|760|34|78|33',
+                    'Cơm rang dưa bò|690|29|88|22', 'Cơm trộn Hàn Quốc|620|24|88|17', 'Cơm cuộn kimbap|430|16|64|12', 'Cơm nắm cá ngừ mayo|270|10|38|8',
+                    'Cơm hến|490|20|78|10', 'Cơm sườn nướng mật ong|710|34|88|21', 'Cơm thịt luộc rau luộc|540|29|75|12', 'Cơm chay thập cẩm|560|18|88|14'
+                ]
+            },
+            {
+                category: 'Bánh & đồ ăn vặt',
+                items: [
+                    'Bánh cuốn nhân thịt|420|18|58|12', 'Bánh cuốn chả lụa|480|23|60|15', 'Bánh mì thịt nguội|480|21|56|19', 'Bánh mì thịt nướng|520|25|58|20',
+                    'Bánh mì ốp la|430|18|52|17', 'Bánh mì chả cá|470|22|58|16', 'Bánh mì gà xé|450|25|52|13', 'Bánh mì xíu mại|510|22|60|19',
+                    'Bánh giò|340|12|42|13', 'Bánh bao nhân thịt|350|13|48|11', 'Bánh bao xá xíu|390|15|54|13', 'Xôi xéo|520|13|84|14',
+                    'Xôi gà|610|27|82|17', 'Xôi mặn|590|21|82|18', 'Xôi đậu xanh|480|12|82|9', 'Xôi bắp|430|10|78|8',
+                    'Bánh chưng|420|12|68|12', 'Bánh tét nhân thịt|450|13|70|14', 'Bánh khọt (6 cái)|510|18|56|24', 'Bánh xèo (1 cái)|560|22|54|27',
+                    'Bánh căn trứng (6 cái)|430|18|52|16', 'Bánh bèo (6 chén)|390|12|62|11', 'Bánh bột lọc (6 cái)|360|10|64|7', 'Bánh ít trần nhân thịt|380|14|58|10',
+                    'Bánh tráng trộn|430|12|58|17', 'Bánh tráng nướng|390|14|48|15', 'Gỏi cuốn tôm thịt (2 cuốn)|240|16|32|5', 'Nem nướng cuốn (2 cuốn)|390|22|42|14',
+                    'Chả giò (3 cuốn)|330|14|32|17', 'Nem chua rán (5 cái)|410|18|34|22', 'Khoai lang chiên (100g)|280|3|42|11', 'Bắp xào bơ (1 hộp)|320|8|42|13'
+                ]
+            },
+            {
+                category: 'Đồ uống & trà sữa',
+                items: [
+                    'Cà phê sữa đá|150|4|24|5', 'Bạc xỉu|190|5|30|6', 'Cà phê đen sữa tươi|110|4|16|3', 'Cà phê cốt dừa|320|4|34|19',
+                    'Trà sữa trân châu đường đen|420|5|74|12', 'Trà sữa trân châu truyền thống|380|5|68|10', 'Trà sữa ô long|350|5|62|9', 'Trà sữa matcha|390|6|68|11',
+                    'Trà sữa khoai môn|430|5|78|12', 'Trà sữa socola|410|6|70|13', 'Trà sữa pudding|450|7|76|13', 'Trà sữa kem cheese|490|7|68|21',
+                    'Trà đào cam sả|160|1|39|0', 'Trà vải|180|1|44|0', 'Trà tắc mật ong|130|1|33|0', 'Trà chanh đường|120|0|31|0',
+                    'Trà sữa ít đường|260|5|46|7', 'Trà sữa không topping|300|5|54|8', 'Sữa đậu nành có đường|160|7|24|4', 'Sữa bắp|190|5|32|5',
+                    'Nước mía (1 ly)|240|0|60|0', 'Sinh tố bơ sữa|380|7|42|22', 'Sinh tố xoài|250|4|54|3', 'Sinh tố dâu sữa chua|220|6|42|4',
+                    'Nước dừa tươi|60|1|15|0', 'Nước cam vắt|110|2|26|0', 'Sữa chua uống|150|5|28|2', 'Sữa tươi trân châu đường đen|460|8|72|15',
+                    'Matcha latte|240|8|34|8', 'Soda chanh đường|150|0|38|0', 'Nước ép cà rốt|100|2|23|0', 'Nước ép thơm|130|1|32|0'
+                ]
+            },
+            {
+                category: 'Trái cây & đồ ngọt',
+                items: [
+                    'Chè đậu xanh|280|8|52|5', 'Chè đậu đen|300|9|56|5', 'Chè ba màu|360|7|66|9', 'Chè thái sầu riêng|420|7|66|15',
+                    'Chè khúc bạch|330|8|48|12', 'Chè bưởi|310|5|60|6', 'Chè chuối nước cốt dừa|380|5|68|12', 'Chè trôi nước (3 viên)|320|6|58|7',
+                    'Tàu hũ nước đường|180|7|30|4', 'Sữa chua nếp cẩm|250|7|46|5', 'Bánh flan|180|6|24|7', 'Rau câu dừa|160|2|32|4',
+                    'Bánh bò hấp|220|4|46|3', 'Bánh da lợn|280|4|48|9', 'Bánh chuối hấp|260|4|48|7', 'Bánh chuối nướng|330|5|52|12',
+                    'Bánh tiêu (1 cái)|220|5|30|9', 'Bánh rán nhân đậu xanh|260|5|38|10', 'Donut đường (1 cái)|290|5|38|13', 'Kem dừa (2 viên)|280|4|34|15',
+                    'Kem ốc quế|210|4|30|9', 'Mochi nhân đậu đỏ (2 cái)|220|4|42|4', 'Bánh tiramisu (1 miếng)|390|6|42|22', 'Bánh bông lan trứng muối|430|12|48|21',
+                    'Bánh su kem (2 cái)|240|5|30|11', 'Bánh cheesecake (1 miếng)|450|7|38|30', 'Sầu riêng (100g)|150|2|27|5', 'Mít chín (100g)|95|2|24|0',
+                    'Xoài chín (1 quả vừa)|135|2|35|1', 'Dưa hấu (300g)|90|2|23|0', 'Ổi (1 quả vừa)|120|4|25|2', 'Chuối sứ (1 quả)|105|1|27|0'
+                ]
+            }
+        ];
+
+        const STREET_FOOD_AI_DATABASE = STREET_FOOD_AI_DATABASE_GROUPS.flatMap(group =>
+            group.items.map(row => {
+                const [name, cal, p, c, f] = row.split('|');
+                return {
+                    category: group.category,
+                    name,
+                    cal: Number(cal),
+                    p: Number(p),
+                    c: Number(c),
+                    f: Number(f)
+                };
+            })
+        );
+
+        let activeStreetFoodSuggestion = -1;
+        let streetFoodEstimateTimeout = null;
+
+        function normalizeStreetFoodName(value) {
+            return value.toLocaleLowerCase('vi')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/[^a-z0-9]+/g, ' ')
+                .trim();
+        }
+
+        function fillStreetFoodMacros(food) {
+            clearTimeout(streetFoodEstimateTimeout);
+            document.getElementById('customFoodName').value = food.name;
+            document.getElementById('foodLogCustomCal').value = food.cal;
+            document.getElementById('foodLogCustomP').value = food.p;
+            document.getElementById('foodLogCustomC').value = food.c;
+            document.getElementById('foodLogCustomF').value = food.f;
+            document.getElementById('foodLogAmount').value = 1;
+            document.getElementById('foodLogUnitLabel').textContent = 'khẩu phần';
+            document.getElementById('streetFoodLookupStatus').textContent = food.isEstimate
+                ? `Đã ước tính nhanh macro cho "${food.name}" theo thành phần thường gặp; hãy điều chỉnh theo khẩu phần thực tế.`
+                : `Đã tính toán xong thông số dinh dưỡng cho "${food.name}"! Giá trị tham khảo cho một khẩu phần.`;
+            document.getElementById('streetFoodLookupStatus').classList.remove('hidden');
+            hideStreetFoodSuggestions();
+            updateFoodLogPreview();
+        }
+
+        function hideStreetFoodSuggestions() {
+            const list = document.getElementById('streetFoodSuggestions');
+            list.classList.add('hidden');
+            list.replaceChildren();
+            document.getElementById('customFoodName').setAttribute('aria-expanded', 'false');
+            document.getElementById('customFoodName').removeAttribute('aria-activedescendant');
+            activeStreetFoodSuggestion = -1;
+        }
+
+        function selectStreetFoodSuggestion(index) {
+            const query = normalizeStreetFoodName(document.getElementById('customFoodName').value);
+            const matches = STREET_FOOD_AI_DATABASE.filter(food => normalizeStreetFoodName(food.name).includes(query)).slice(0, 8);
+            const food = matches[index];
+            if (food) fillStreetFoodMacros(food);
+        }
+
+        function handleStreetFoodNameInput() {
+            const input = document.getElementById('customFoodName');
+            const query = normalizeStreetFoodName(input.value);
+            const status = document.getElementById('streetFoodLookupStatus');
+            status.classList.add('hidden');
+            if (!query) {
+                hideStreetFoodSuggestions();
+                updateFoodLogPreview();
+                return;
+            }
+
+            const exactMatch = STREET_FOOD_AI_DATABASE.find(food => normalizeStreetFoodName(food.name) === query);
+            if (exactMatch) {
+                fillStreetFoodMacros(exactMatch);
+                return;
+            }
+
+            const matches = STREET_FOOD_AI_DATABASE.filter(food => normalizeStreetFoodName(food.name).includes(query)).slice(0, 8);
+            ['foodLogCustomCal', 'foodLogCustomP', 'foodLogCustomC', 'foodLogCustomF'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            const list = document.getElementById('streetFoodSuggestions');
+            list.replaceChildren();
+            activeStreetFoodSuggestion = -1;
+            matches.forEach((food, index) => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.id = `streetFoodSuggestion-${index}`;
+                option.setAttribute('role', 'option');
+                option.className = 'flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-xs hover:bg-emerald-50 focus:bg-emerald-50';
+                const name = document.createElement('span');
+                name.className = 'font-bold text-slate-800';
+                name.textContent = food.name;
+                const macros = document.createElement('span');
+                macros.className = 'shrink-0 text-slate-500';
+                macros.textContent = `${food.cal} kcal · P ${food.p} · C ${food.c} · F ${food.f}`;
+                option.append(name, macros);
+                option.addEventListener('mousedown', event => event.preventDefault());
+                option.addEventListener('click', () => fillStreetFoodMacros(food));
+                list.append(option);
+            });
+            list.classList.toggle('hidden', matches.length === 0);
+            input.setAttribute('aria-expanded', String(matches.length > 0));
+            updateFoodLogPreview();
+            clearTimeout(streetFoodEstimateTimeout);
+            if (matches.length === 0) {
+                const typedName = input.value.trim();
+                streetFoodEstimateTimeout = setTimeout(() => {
+                    if (normalizeStreetFoodName(input.value) !== query) return;
+                    fillStreetFoodMacros(estimateStreetFoodMacros(typedName));
+                }, 300);
+            }
+        }
+
+        function handleStreetFoodSuggestionKeydown(event) {
+            const list = document.getElementById('streetFoodSuggestions');
+            if (list.classList.contains('hidden')) return;
+            const options = [...list.querySelectorAll('[role="option"]')];
+            if (event.key === 'Escape') {
+                hideStreetFoodSuggestions();
+                return;
+            }
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const direction = event.key === 'ArrowDown' ? 1 : -1;
+                activeStreetFoodSuggestion = (activeStreetFoodSuggestion + direction + options.length) % options.length;
+                options.forEach((option, index) => option.setAttribute('aria-selected', String(index === activeStreetFoodSuggestion)));
+                document.getElementById('customFoodName').setAttribute('aria-activedescendant', options[activeStreetFoodSuggestion].id);
+            } else if (event.key === 'Enter' && activeStreetFoodSuggestion >= 0) {
+                event.preventDefault();
+                selectStreetFoodSuggestion(activeStreetFoodSuggestion);
+            }
+        }
+
+        function estimateStreetFoodMacros(name) {
+            const text = normalizeStreetFoodName(name);
+            let p = 15;
+            let c = 45;
+            let f = 12;
+
+            if (/tra sua|sua|latte|ca phe|bac xiu|sinh to|nuoc ep|nuoc mia|soda|tra dao|tra vai|tra tac|tra chanh/.test(text)) {
+                p = /sua|latte|tra sua|sinh to/.test(text) ? 6 : 1;
+                c = /tra sua|sua|latte|nuoc mia|soda|sinh to/.test(text) ? 55 : 30;
+                f = /dua|kem|sua|latte|tra sua|sinh to/.test(text) ? 12 : 1;
+                if (/tran chau|kem cheese|sau rieng|dua cot/.test(text)) { c += 15; f += 6; }
+            } else if (/che|banh|kem|flan|rau cau|mochi|donut|bong lan|tiramisu|cheesecake/.test(text)) {
+                p = /nhan thit|trung muoi/.test(text) ? 10 : 5;
+                c = /banh chung|banh tet|xoi/.test(text) ? 65 : 52;
+                f = /chien|ran|kem|dua|cheesecake|su kem/.test(text) ? 16 : 9;
+            } else if (/pho|bun|hu tieu|mi quang|mien|hoanh thanh/.test(text)) {
+                p = /bo|ga|thit|tom|ca|luon|moc|nem|cha/.test(text) ? 27 : 16;
+                c = /pho|bun|hu tieu|mi quang|mien|mi /.test(text) ? 66 : 48;
+                f = /bo kho|sa te|dua|mam|cha|nem|tieu/.test(text) ? 19 : 12;
+            } else if (/com|xoi|hanh|kimbap/.test(text)) {
+                p = /ga|bo|heo|suon|ca|vit|tom|thit|trung/.test(text) ? 30 : 17;
+                c = /xoi|com|kimbap/.test(text) ? 80 : 55;
+                f = 17;
+            } else if (/banh mi|banh cuon|banh gio|banh bao|banh xeo|banh khot|goi cuon|cha gio|nem/.test(text)) {
+                p = /thit|ga|bo|cha|tom|trung|nem/.test(text) ? 20 : 9;
+                c = 55;
+                f = /chien|xao|xiu mai|cha gio|banh xeo/.test(text) ? 20 : 12;
+            } else if (/ga|bo|heo|thit|ca|tom|trung|vit|suon/.test(text)) {
+                p = 28;
+                c = 35;
+                f = 16;
+            } else if (/xoai|chuoi|oi|dua hau|mit|sau rieng|cam|tao|buoi|thanh long/.test(text)) {
+                p = 2;
+                c = 28;
+                f = 1;
+            }
+
+            if (/chien|ran|xao|quay|nuong|kho to|ba chi/.test(text)) f += 8;
+            if (/bun|com|banh mi|banh|xoi|mien|pho/.test(text)) c += 10;
+            if (/chay|rau|salad/.test(text)) {
+                p = Math.min(p, 16);
+                f = Math.min(f, 12);
+                c = Math.max(c, 35);
+            }
+            return {
+                name: name.trim(),
+                cal: Math.round(p * 4 + c * 4 + f * 9),
+                p,
+                c,
+                f,
+                isEstimate: true
+            };
+        }
+
+        function lookupStreetFoodMacros() {
+            const input = document.getElementById('customFoodName');
+            const name = input.value.trim();
+            if (!name) {
+                const status = document.getElementById('streetFoodLookupStatus');
+                status.textContent = 'Hãy nhập tên món ăn trước khi tra cứu.';
+                status.classList.remove('hidden');
+                input.focus();
+                return;
+            }
+
+            const normalizedQuery = normalizeStreetFoodName(name);
+            const exactMatch = STREET_FOOD_AI_DATABASE.find(food => normalizeStreetFoodName(food.name) === normalizedQuery);
+            const partialMatch = exactMatch || STREET_FOOD_AI_DATABASE.find(food => {
+                const normalizedName = normalizeStreetFoodName(food.name);
+                return normalizedName.includes(normalizedQuery) || normalizedQuery.includes(normalizedName);
+            });
+            const food = partialMatch || estimateStreetFoodMacros(name);
+            fillStreetFoodMacros(food);
+        }
+
+        function renderFoodLogSelector() {
+            const selector = document.getElementById('foodLogFoodSelect');
+            selector.innerHTML = FOOD_LOG_CATEGORIES.map(category => `
+                <optgroup label="${category.label}">
+                    ${FOOD_DB[category.id].map(food => `<option value="${category.id}|${food.id}">${food.name}</option>`).join('')}
+                </optgroup>
+            `).join('');
+            filterFoodLogOptions();
+            updateFoodLogUnit();
+        }
+
+        function filterFoodLogOptions() {
+            const query = document.getElementById('foodLogSearch').value.trim().toLocaleLowerCase();
+            const selector = document.getElementById('foodLogFoodSelect');
+            let firstVisibleValue = '';
+            selector.querySelectorAll('optgroup').forEach(group => {
+                let visibleCount = 0;
+                group.querySelectorAll('option').forEach(option => {
+                    const visible = !query || option.textContent.toLocaleLowerCase().includes(query);
+                    option.hidden = !visible;
+                    if (visible) {
+                        visibleCount++;
+                        if (!firstVisibleValue) firstVisibleValue = option.value;
+                    }
+                });
+                group.hidden = visibleCount === 0;
+            });
+            if (query && (!selector.selectedOptions[0] || selector.selectedOptions[0].hidden)) {
+                selector.value = firstVisibleValue;
+                updateFoodLogUnit();
+                updateFoodLogPreview();
+            }
+        }
+
+        function getSelectedFoodLogItem() {
+            const value = document.getElementById('foodLogFoodSelect').value;
+            const separator = value.indexOf('|');
+            if (separator < 0) return null;
+            const category = value.slice(0, separator);
+            const id = value.slice(separator + 1);
+            const food = FOOD_DB[category]?.find(item => item.id === id);
+            return food ? { category, food } : null;
+        }
+
+        function updateFoodLogUnit() {
+            if (document.getElementById('foodLogMode').value === 'custom') {
+                document.getElementById('foodLogAmount').value = 1;
+                document.getElementById('foodLogUnitLabel').textContent = 'khẩu phần';
+                return;
+            }
+            const selected = getSelectedFoodLogItem();
+            if (!selected) {
+                document.getElementById('foodLogUnitLabel').textContent = '';
+                return;
+            }
+            const { category, food } = selected;
+            document.getElementById('foodLogAmount').value = category === 'street' || food.unit !== 'g' ? 1 : 100;
+            document.getElementById('foodLogUnitLabel').textContent = category === 'street' ? food.unit : (food.unit === 'g' ? 'g' : food.unit);
+        }
+
+        function toggleFoodLogMode() {
+            const isCustom = document.getElementById('foodLogMode').value === 'custom';
+            document.getElementById('foodLogCustomFields').classList.toggle('hidden', !isCustom);
+            document.getElementById('foodLogDatabaseFields').classList.toggle('hidden', isCustom);
+            updateFoodLogUnit();
+            updateFoodLogPreview();
+        }
+
+        function formatFoodLogNumber(value) {
+            return Number(value.toFixed(1)).toLocaleString('vi-VN');
+        }
+
+        function updateFoodLogPreview() {
+            const amount = parseFloat(document.getElementById('foodLogAmount').value);
+            const isCustom = document.getElementById('foodLogMode').value === 'custom';
+            const nameEl = document.getElementById('foodLogPreviewName');
+            const basisEl = document.getElementById('foodLogPreviewBasis');
+            let name = '';
+            let values = null;
+            let basis = '';
+
+            if (isCustom) {
+                name = document.getElementById('customFoodName').value.trim() || 'Món tự nhập';
+                const inputs = ['Cal', 'P', 'C', 'F'].map(key => document.getElementById(`foodLogCustom${key}`).value);
+                if (inputs.every(value => value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0)) {
+                    const multiplier = Number.isFinite(amount) && amount > 0 ? amount : 0;
+                    values = {
+                        cal: Number(inputs[0]) * multiplier,
+                        p: Number(inputs[1]) * multiplier,
+                        c: Number(inputs[2]) * multiplier,
+                        f: Number(inputs[3]) * multiplier
+                    };
+                    basis = `Theo ${formatFoodLogNumber(multiplier)} khẩu phần đã nhập.`;
+                }
+            } else {
+                const selected = getSelectedFoodLogItem();
+                if (selected) {
+                    const { category, food } = selected;
+                    name = food.name;
+                    if (Number.isFinite(amount) && amount > 0) {
+                        const multiplier = category === 'street'
+                            ? amount
+                            : (food.unit === 'g' ? amount / 100 : (amount * food.unitWeight) / 100);
+                        values = {
+                            cal: food.cal * multiplier,
+                            p: food.p * multiplier,
+                            c: food.c * multiplier,
+                            f: food.f * multiplier
+                        };
+                        const unit = category === 'street' ? food.unit : (food.unit === 'g' ? 'g' : food.unit);
+                        basis = `Giá trị theo ${formatFoodLogNumber(amount)} ${unit}; ${category === 'street' ? 'dữ liệu món ngoài tính theo từng suất' : 'dữ liệu dinh dưỡng quy đổi từ 100 g'}.`;
+                    }
+                }
+            }
+
+            nameEl.textContent = name || 'Chọn món và nhập khẩu phần để xem dinh dưỡng.';
+            basisEl.textContent = basis;
+            const preview = values || { cal: 0, p: 0, c: 0, f: 0 };
+            document.getElementById('foodLogPreviewCal').textContent = formatFoodLogNumber(preview.cal);
+            document.getElementById('foodLogPreviewP').textContent = formatFoodLogNumber(preview.p);
+            document.getElementById('foodLogPreviewC').textContent = formatFoodLogNumber(preview.c);
+            document.getElementById('foodLogPreviewF').textContent = formatFoodLogNumber(preview.f);
+        }
+
+        function addCustomFoodLog() {
+            const error = document.getElementById('foodLogError');
+            const amount = parseFloat(document.getElementById('foodLogAmount').value);
+            if (!Number.isFinite(amount) || amount <= 0) {
+                error.textContent = 'Vui lòng nhập số lượng lớn hơn 0.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            let entry;
+            if (document.getElementById('foodLogMode').value === 'custom') {
+                const name = document.getElementById('customFoodName').value.trim();
+                const values = ['Cal', 'P', 'C', 'F'].map(key => document.getElementById(`foodLogCustom${key}`).value);
+                if (!name || values.some(value => value === '' || !Number.isFinite(Number(value)) || Number(value) < 0)) {
+                    error.textContent = 'Vui lòng nhập tên món và đầy đủ Calo, P, C, F hợp lệ.';
+                    error.classList.remove('hidden');
+                    return;
+                }
+                entry = {
+                    name,
+                    quantity: `${formatFoodLogNumber(amount)} khẩu phần`,
+                    cal: Number(values[0]) * amount,
+                    p: Number(values[1]) * amount,
+                    c: Number(values[2]) * amount,
+                    f: Number(values[3]) * amount
+                };
+            } else {
+                const selected = getSelectedFoodLogItem();
+                if (!selected) {
+                    error.textContent = 'Vui lòng chọn một món ăn trong danh sách.';
+                    error.classList.remove('hidden');
+                    return;
+                }
+                const { category, food } = selected;
+                const multiplier = category === 'street'
+                    ? amount
+                    : (food.unit === 'g' ? amount / 100 : (amount * food.unitWeight) / 100);
+                const unit = category === 'street' ? food.unit : (food.unit === 'g' ? 'g' : food.unit);
+                entry = {
+                    name: food.name,
+                    quantity: `${formatFoodLogNumber(amount)} ${unit}`,
+                    cal: food.cal * multiplier,
+                    p: food.p * multiplier,
+                    c: food.c * multiplier,
+                    f: food.f * multiplier
+                };
+            }
+
+            customFoodLogs.push(entry);
+            error.classList.add('hidden');
+            renderFoodLogSummary();
+            updateLiveTracker();
+            saveState();
+        }
+
+        function removeCustomFoodLog(index) {
+            customFoodLogs.splice(index, 1);
+            renderFoodLogSummary();
+            updateLiveTracker();
+            saveState();
+        }
+
+        function escapeFoodLogHtml(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
+        function renderFoodLogSummary() {
+            const totals = customFoodLogs.reduce((sum, item) => {
+                sum.cal += Number(item.cal) || 0;
+                sum.p += Number(item.p) || 0;
+                sum.c += Number(item.c) || 0;
+                sum.f += Number(item.f) || 0;
+                return sum;
+            }, { cal: 0, p: 0, c: 0, f: 0 });
+            const metrics = [
+                { key: 'cal', label: 'Tổng Calo', target: currentTargetCal, unit: 'kcal', card: 'border-orange-200 bg-orange-50/60', labelClass: 'text-orange-700', bar: 'bg-orange-500' },
+                { key: 'p', label: 'Tổng Đạm', target: currentPGram, unit: 'g', card: 'border-rose-200 bg-rose-50/60', labelClass: 'text-rose-700', bar: 'bg-rose-500' },
+                { key: 'c', label: 'Tổng Tinh bột', target: currentCGram, unit: 'g', card: 'border-amber-200 bg-amber-50/60', labelClass: 'text-amber-700', bar: 'bg-amber-500' },
+                { key: 'f', label: 'Tổng Chất béo', target: currentFGram, unit: 'g', card: 'border-sky-200 bg-sky-50/60', labelClass: 'text-sky-700', bar: 'bg-sky-500' }
+            ];
+
+            document.getElementById('foodLogSummary').innerHTML = metrics.map(metric => {
+                const value = totals[metric.key];
+                const percent = metric.target > 0 ? Math.round((value / metric.target) * 100) : 0;
+                const remaining = metric.target - value;
+                const balance = remaining > 0
+                    ? `Còn thiếu ${formatFoodLogNumber(remaining)} ${metric.unit}`
+                    : remaining < 0
+                        ? `Vượt ${formatFoodLogNumber(Math.abs(remaining))} ${metric.unit}`
+                        : 'Đạt đúng mục tiêu';
+                return `
+                    <div class="rounded-2xl border ${metric.card} p-4">
+                        <div class="text-xs font-bold ${metric.labelClass}">${metric.label}</div>
+                        <div class="mt-1 text-xl font-black text-slate-900">${formatFoodLogNumber(value)} <span class="text-xs font-bold text-slate-500">${metric.unit}</span></div>
+                        <div class="mt-1 text-[11px] text-slate-600">Mục tiêu ${formatFoodLogNumber(metric.target)} ${metric.unit} • ${percent}%</div>
+                        <div class="mt-2 h-2 rounded-full bg-white overflow-hidden">
+                            <div class="${metric.bar} h-full rounded-full transition-all duration-300" style="width:${Math.min(100, percent)}%"></div>
+                        </div>
+                        <div class="mt-1.5 text-[11px] font-bold ${remaining < 0 ? 'text-rose-700' : 'text-slate-600'}">${balance}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const table = document.getElementById('foodLogTable');
+            if (customFoodLogs.length === 0) {
+                table.innerHTML = '<p class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-xs text-slate-500">Chưa có món nào trong nhật ký hôm nay.</p>';
+                return;
+            }
+            table.innerHTML = `
+                <table class="w-full min-w-[720px] text-xs text-left">
+                    <thead class="bg-slate-100 text-slate-600">
+                        <tr>
+                            <th class="p-3 rounded-l-xl">Tên món</th>
+                            <th class="p-3">Khối lượng / Số lượng</th>
+                            <th class="p-3">Calo</th>
+                            <th class="p-3">P</th>
+                            <th class="p-3">C</th>
+                            <th class="p-3">F</th>
+                            <th class="p-3 rounded-r-xl">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${customFoodLogs.map((item, index) => `
+                            <tr class="border-b border-slate-100 last:border-0">
+                                <td class="p-3 font-bold text-slate-800">${escapeFoodLogHtml(item.name)}</td>
+                                <td class="p-3 text-slate-600">${escapeFoodLogHtml(item.quantity)}</td>
+                                <td class="p-3 font-semibold">${formatFoodLogNumber(Number(item.cal) || 0)} kcal</td>
+                                <td class="p-3">${formatFoodLogNumber(Number(item.p) || 0)}g</td>
+                                <td class="p-3">${formatFoodLogNumber(Number(item.c) || 0)}g</td>
+                                <td class="p-3">${formatFoodLogNumber(Number(item.f) || 0)}g</td>
+                                <td class="p-3"><button onclick="removeCustomFoodLog(${index})" aria-label="Xóa ${escapeFoodLogHtml(item.name)}" class="text-rose-600 hover:text-rose-800 font-bold"><i class="fa-solid fa-trash-can"></i> Xóa</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         // ==================== THUẬT TOÁN GIẢI KHẨU PHẦN BỮA ĂN CHÍNH XÁC 100% ====================
@@ -1452,6 +2142,13 @@
                 eatenF += s.f;
             });
 
+            customFoodLogs.forEach(item => {
+                eatenCal += Number(item.cal) || 0;
+                eatenP += Number(item.p) || 0;
+                eatenC += Number(item.c) || 0;
+                eatenF += Number(item.f) || 0;
+            });
+
             const pct = Math.min(100, Math.round((eatenCal / currentTargetCal) * 100));
             document.getElementById('eatenCalText').innerText = Math.round(eatenCal).toLocaleString();
             document.getElementById('eatenPText').innerText = Math.round(eatenP) + 'g';
@@ -1483,6 +2180,7 @@
         function goToFoodPage(p) {
             currentFoodPage = p;
             renderEncyclopedia();
+            document.getElementById('section-encyclopedia').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function renderEncyclopedia() {
@@ -1620,6 +2318,8 @@
 
         window.onload = () => {
             loadState();
+            renderFoodLogSelector();
+            toggleFoodLogMode();
             calculateAll();
         };
     </script>

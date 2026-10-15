@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CaliMacro Titanium - Hệ Sinh Thái Dinh Dưỡng & Calisthenics Toàn Diện</title>
+    <title>CaliMacro Titanium V5 - Hệ Điều Hành Dinh Dưỡng Calisthenics</title>
     
     <!-- Cấu hình PWA Standalone App -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,7 +29,16 @@
         .card-pro {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.05);
+            box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.04);
+        }
+        .nav-active-desktop {
+            background-color: #059669 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+        }
+        .nav-active-mobile {
+            color: #059669 !important;
+            font-weight: 800;
         }
         .cup-active {
             background: #e0f2fe !important;
@@ -40,13 +49,18 @@
             border-color: #10b981 !important;
             background-color: #f0fdf4 !important;
         }
-        .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .page-view {
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="min-h-screen pb-24 lg:pb-12">
+<body class="min-h-screen pb-24 lg:pb-10">
 
-    <!-- HEADER CỐ ĐỊNH + THANH TIẾN ĐỘ NẠP TRONG NGÀY -->
+    <!-- HEADER CỐ ĐỊNH + THANH ĐIỀU HƯỚNG PHÂN TRANG -->
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3">
             <div class="flex flex-wrap items-center justify-between gap-3">
@@ -57,15 +71,15 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">CALIMACRO <span class="text-emerald-600">TITANIUM</span></h1>
-                            <span class="hidden sm:inline-block text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold uppercase">Ultimate Edition</span>
+                            <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">CALIMACRO <span class="text-emerald-600">V5</span></h1>
+                            <span class="hidden sm:inline-block text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-extrabold uppercase">Precision OS</span>
                         </div>
-                        <p class="text-[11px] text-slate-500 font-medium">100+ Thực phẩm • Thực đơn Tương tác • Vi chất & Calisthenics</p>
+                        <p class="text-[11px] text-slate-500 font-medium">Chuẩn Katch-McArdle • Cá nhân hóa Nước • Phân trang SPA</p>
                     </div>
                 </div>
 
-                <!-- Live Progress Tracker (Theo dõi Calo + P/C/F đã ăn trong ngày) -->
-                <div class="flex items-center gap-3 bg-slate-50 px-3.5 py-2 rounded-2xl border border-slate-200 flex-1 max-w-2xl">
+                <!-- Live Progress Tracker -->
+                <div class="flex items-center gap-3 bg-slate-50 px-3.5 py-2 rounded-2xl border border-slate-200 flex-1 max-w-xl">
                     <div class="flex-1">
                         <div class="flex flex-wrap justify-between text-xs font-bold mb-1 gap-1">
                             <span class="text-slate-700"><i class="fa-solid fa-fire text-orange-500 mr-1"></i>Đã nạp: <span id="eatenCalText" class="text-emerald-700 font-extrabold">0</span> / <span id="headerTargetCal">2,952</span> kcal</span>
@@ -85,37 +99,48 @@
                     </button>
                 </div>
 
-                <!-- Nút Chuyển Tab Nhanh trên Desktop -->
-                <div class="hidden xl:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
-                    <button onclick="switchMainTab('all')" id="tabBtn-all" class="px-3 py-1.5 rounded-lg bg-white text-emerald-700 shadow-sm transition">Tất cả</button>
-                    <button onclick="switchMainTab('meals')" id="tabBtn-meals" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Thực đơn & Ăn ngoài</button>
-                    <button onclick="switchMainTab('encyclopedia')" id="tabBtn-encyclopedia" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Kho 100+ Món</button>
-                    <button onclick="switchMainTab('cali')" id="tabBtn-cali" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Kỹ năng & Cân nặng</button>
-                    <button onclick="switchMainTab('grocery')" id="tabBtn-grocery" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Đi chợ</button>
+                <!-- MENU PHÂN TRANG TRÊN MÁY TÍNH (5 TRANG ĐỘC LẬP) -->
+                <div class="hidden lg:flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold gap-1">
+                    <button onclick="navigatePage(1)" id="deskNav-1" class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 nav-active-desktop">
+                        <i class="fa-solid fa-chart-pie"></i><span>1. Tổng quan & Hồ sơ</span>
+                    </button>
+                    <button onclick="navigatePage(2)" id="deskNav-2" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-utensils"></i><span>2. Thực đơn 4 Bữa</span>
+                    </button>
+                    <button onclick="navigatePage(3)" id="deskNav-3" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-droplet"></i><span>3. Nước & Đồ uống</span>
+                    </button>
+                    <button onclick="navigatePage(4)" id="deskNav-4" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i><span>4. Kho Thực phẩm</span>
+                    </button>
+                    <button onclick="navigatePage(5)" id="deskNav-5" class="px-3.5 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-cart-shopping"></i><span>5. Đi chợ & Skills</span>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- NỘI DUNG CHÍNH -->
+    <!-- KHUNG CHỨA CÁC TRANG ĐỘC LẬP -->
     <main class="max-w-7xl mx-auto px-3 sm:px-6 mt-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            <!-- ================= CỘT TRÁI (4 CỘT): CẤU HÌNH CƠ THỂ, NƯỚC, ĐỒ UỐNG & CÂN NẶNG ================= -->
-            <div class="lg:col-span-4 space-y-6" id="leftColumn">
+
+        <!-- =========================================================================
+             TRANG 1: TỔNG QUAN NĂNG LƯỢNG, HỒ SƠ CƠ THỂ & VI CHẤT
+        ========================================================================== -->
+        <section id="page-1" class="page-view">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- THẺ 1: HỒ SƠ CƠ THỂ & THUẬT TOÁN CALISTHENICS -->
-                <div class="card-pro p-5 rounded-3xl">
+                <!-- Cột Trái: Hồ sơ cơ thể & Công thức BMR -->
+                <div class="lg:col-span-4 card-pro p-5 rounded-3xl h-fit">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
                             <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center mr-2 text-xs">1</span>
-                            Hồ Sơ Cơ Thể & Mục Tiêu
+                            Hồ Sơ Cơ Thể Chuẩn Xác
                         </h2>
                         <button onclick="resetAllSettings()" class="text-[11px] text-rose-600 hover:underline font-bold">Khôi phục gốc</button>
                     </div>
 
                     <div class="space-y-4">
-                        <!-- Giới tính & Chế độ Ngày tập / Ngày nghỉ -->
                         <div class="grid grid-cols-2 gap-2.5">
                             <div>
                                 <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Giới tính</label>
@@ -137,13 +162,13 @@
                             <div>
                                 <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Loại ngày hôm nay</label>
                                 <select id="dayType" onchange="calculateAll()" class="w-full px-2.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold text-xs focus:outline-none">
-                                    <option value="train" selected>🔥 Ngày Có Tập (High Carb)</option>
-                                    <option value="rest">💤 Ngày Nghỉ Cơ (-200 kcal)</option>
+                                    <option value="train" selected>🔥 Ngày Có Tập</option>
+                                    <option value="rest">💤 Ngày Nghỉ (-200 kcal)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Tuổi, Cao, Nặng, Mỡ -->
+                        <!-- 4 Ô Thông số -->
                         <div class="grid grid-cols-4 gap-2">
                             <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
                                 <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">Tuổi</label>
@@ -160,296 +185,417 @@
                                 <input type="number" id="weight" value="55" min="30" max="180" step="0.5" oninput="calculateAll()"
                                     class="w-full bg-transparent text-emerald-700 font-extrabold text-center text-base focus:outline-none">
                             </div>
-                            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-200 text-center">
-                                <label class="block text-[10px] font-bold uppercase text-slate-500 mb-0.5">% Mỡ</label>
-                                <input type="number" id="bodyfat" value="12" min="4" max="50" oninput="calculateAll()"
-                                    class="w-full bg-transparent text-slate-900 font-extrabold text-center text-base focus:outline-none">
+                            <div class="bg-amber-50/70 p-2.5 rounded-2xl border border-amber-300 text-center">
+                                <label class="block text-[10px] font-bold uppercase text-amber-800 mb-0.5">% Mỡ</label>
+                                <input type="number" id="bodyfat" value="12" min="4" max="50" step="0.5" oninput="calculateAll()"
+                                    class="w-full bg-transparent text-amber-900 font-extrabold text-center text-base focus:outline-none">
                             </div>
                         </div>
 
-                        <!-- Cường độ & Mục tiêu -->
+                        <!-- Khối lượng cơ nạc LBM -->
+                        <div class="bg-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex justify-between items-center text-xs">
+                            <span class="text-slate-300">Khối lượng không mỡ (LBM):</span>
+                            <strong id="lbmValueText" class="text-emerald-400 text-sm">48.4 kg (Mỡ: 6.6 kg)</strong>
+                        </div>
+
+                        <!-- Chọn Công thức BMR -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Cường độ tập luyện Calisthenics</label>
-                            <select id="activity" onchange="calculateAll()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
-                                <option value="1.375">Cơ bản (1 - 3 buổi/tuần: Tập nhẹ 30-45 phút)</option>
-                                <option value="1.55">Trung bình (3 - 5 buổi/tuần: Tập Sets & Reps 60 phút)</option>
-                                <option value="1.725" selected>Cường độ cao (6 - 7 buổi/tuần: Tập Skills + Strength)</option>
-                                <option value="1.9">Vận động viên (Tập 2 buổi/ngày hoặc lao động nặng)</option>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Công thức tính BMR y khoa</label>
+                            <select id="bmrFormula" onchange="calculateAll()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none">
+                                <option value="auto" selected>🎯 Trung bình cộng Katch-McArdle & Mifflin (Chuẩn nhất)</option>
+                                <option value="katch">💪 Katch-McArdle (Tính theo Khối lượng Cơ nạc LBM)</option>
+                                <option value="mifflin">📏 Mifflin-St Jeor (Tính theo Chiều cao, Cân nặng, Tuổi)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Hệ số vận động thực tế (PAL)</label>
+                            <select id="activity" onchange="calculateAll()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-800 focus:outline-none">
+                                <option value="1.375">Cơ bản (1 - 3 buổi/tuần • PAL 1.375)</option>
+                                <option value="1.55">Trung bình (3 - 5 buổi/tuần • PAL 1.55)</option>
+                                <option value="1.725" selected>Cường độ cao (6 - 7 buổi/tuần: Tập Skills + Strength • PAL 1.725)</option>
+                                <option value="1.9">Vận động viên (Tập 2 buổi/ngày • PAL 1.90)</option>
                             </select>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Chiến lược Tăng / Giảm Cân</label>
-                            <select id="goal" onchange="calculateAll()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-500">
-                                <option value="-400">Giảm mỡ khô (-400 kcal: Nhẹ người để giữ Planche/Lever)</option>
-                                <option value="-200">Siết cơ nét / Recomp (-200 kcal: Giảm mỡ giữ cơ)</option>
-                                <option value="0">Duy trì (0 kcal: Giữ nguyên cân nặng & phong độ)</option>
+                            <select id="goal" onchange="calculateAll()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-800 focus:outline-none">
+                                <option value="-400">Giảm mỡ khô (-400 kcal/ngày)</option>
+                                <option value="-200">Siết cơ nét / Recomp (-200 kcal/ngày)</option>
+                                <option value="0">Duy trì cân nặng (0 kcal)</option>
                                 <option value="300" selected>Lean Bulk (+300 kcal: Tăng cơ nạc chuẩn Calisthenics)</option>
                                 <option value="500">Fast Bulk (+500 kcal: Tăng cân nhanh cho người gầy)</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Thuật toán phân bổ Macro</label>
-                            <select id="macroMode" onchange="calculateAll()" class="w-full px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs font-bold text-emerald-900 focus:outline-none">
-                                <option value="cali_pro" selected>⚡ Chuẩn Calisthenics (2.2g Đạm/kg + Tối đa Tinh bột)</option>
-                                <option value="hypertrophy">💪 Siêu Tăng Cơ (2.5g Đạm/kg + 24% Béo + Tinh bột)</option>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Thuật toán phân bổ Đa lượng (Macro)</label>
+                            <select id="macroMode" onchange="calculateAll()" class="w-full px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-xs font-bold text-emerald-900 focus:outline-none">
+                                <option value="cali_pro" selected>⚡ Chuẩn Calisthenics (2.2g Đạm/kg + 22% Béo + Tối đa Carb)</option>
+                                <option value="lbm_pro">🧬 Chuẩn Cơ Nạc (2.5g Đạm / kg LBM + 24% Béo + Carb)</option>
                                 <option value="balanced">⚖️ Cân bằng truyền thống (25% Đạm / 50% Carb / 25% Béo)</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <!-- THẺ 2: TRẠM NƯỚC & TỪ ĐIỂN ĐỒ UỐNG TẬP LUYỆN -->
-                <div class="card-pro p-5 rounded-3xl">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
-                            <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center mr-2 text-xs">2</span>
-                            Nước & Đồ Uống Hiệu Suất
-                        </h2>
-                        <span class="text-xs font-extrabold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200" id="waterTargetBadge">2.75 Lít</span>
-                    </div>
-
-                    <p class="text-xs text-slate-500 mb-2.5">Chạm vào từng ly (250ml) để đánh dấu lượng nước đã uống hôm nay:</p>
-                    <div class="grid grid-cols-6 gap-2 mb-3" id="waterCupsContainer"></div>
-                    
-                    <div class="flex justify-between items-center text-xs bg-sky-50/70 px-3.5 py-2 rounded-xl border border-sky-200 mb-4">
-                        <span class="font-semibold text-slate-700">Đã uống hôm nay:</span>
-                        <strong class="text-sky-700 text-sm" id="waterConsumedText">0.00 / 2.75 Lít</strong>
-                    </div>
-
-                    <!-- Bộ chọn Xem 8 Loại Đồ Uống Tốt Nhất Cho Dân Tập -->
-                    <div class="border-t border-slate-100 pt-3">
-                        <label class="block text-xs font-extrabold text-slate-800 mb-1.5">
-                            <i class="fa-solid fa-mug-hot text-amber-600 mr-1"></i>Tra cứu Công thức Đồ uống cho Dân tập:
-                        </label>
-                        <select id="drinkSelector" onchange="renderSelectedDrink()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-800 mb-2.5 focus:outline-none">
-                            <option value="pre_coffee">☕ 1. Cà phê đen / Americano (Trước tập 30p)</option>
-                            <option value="intra_elec">🥥 2. Nước dừa tươi + Muối hồng (Trong khi tập)</option>
-                            <option value="post_shake">🍌 3. Sinh tố Chuối + Yến mạch + Bơ đậu phộng (Tăng cân)</option>
-                            <option value="morning_detox">🍋 4. Nước ấm Chanh + Mật ong (Sáng ngủ dậy)</option>
-                            <option value="matcha_tea">🍵 5. Trà xanh / Matcha không đường (Đốt mỡ, tỉnh táo)</option>
-                            <option value="soy_milk">🥛 6. Sữa tươi không đường / Sữa đậu nành (Sau tập)</option>
-                            <option value="ginger_joint">🫚 7. Trà Gừng + Cam sả (Kháng viêm khớp sau tập nặng)</option>
-                            <option value="night_milk">🌙 8. Sữa ấm / Sữa hạt (Trước ngủ 1 tiếng nuôi cơ đêm)</option>
-                        </select>
-                        <div id="drinkDetailBox" class="p-3 rounded-2xl bg-amber-50/60 border border-amber-200 text-xs text-slate-700"></div>
-                    </div>
-                </div>
-
-                <!-- THẺ 3: THÁP KỸ NĂNG CALISTHENICS & NHẬT KÝ CÂN NẶNG -->
-                <div class="card-pro p-5 rounded-3xl" id="section-cali">
-                    <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 mb-3 flex items-center">
-                        <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center mr-2 text-xs">3</span>
-                        Chỉ Số Calisthenics & Mở Khóa Skills
-                    </h2>
-
-                    <div class="bg-slate-900 text-white p-3.5 rounded-2xl mb-4">
-                        <div class="flex justify-between items-center text-xs mb-1">
-                            <span class="font-bold text-emerald-400">Đánh giá Tỷ lệ Sức mạnh / Cân nặng:</span>
-                            <span id="bmiBadge" class="bg-white/15 px-2 py-0.5 rounded-full text-[11px] font-bold">BMI: 18.2</span>
+                <!-- Cột Phải: Bảng điều khiển Năng lượng & 6 Nhóm Vi Chất -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="card-pro p-5 sm:p-6 rounded-3xl">
+                        <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
+                            <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
+                                <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center mr-2 text-xs">2</span>
+                                Bảng Điều Khiển Năng Lượng & Đa Lượng Chuẩn Xác
+                            </h2>
+                            <span id="formulaUsedBadge" class="text-xs font-bold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
+                                Đang dùng: Katch-McArdle + Mifflin Hybrid
+                            </span>
                         </div>
-                        <p id="caliStatusText" class="text-[11px] text-slate-200 leading-relaxed mb-2.5"></p>
-                        <div class="grid grid-cols-2 gap-2 text-[11px] border-t border-slate-700 pt-2.5" id="skillBenchmarks"></div>
-                    </div>
 
-                    <!-- Nhật ký lưu cân nặng -->
-                    <div class="border-t border-slate-200 pt-3">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-xs font-extrabold text-slate-800"><i class="fa-solid fa-weight-scale text-emerald-600 mr-1"></i>Theo dõi lịch sử cân nặng:</span>
-                            <button onclick="logCurrentWeight()" class="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg font-bold transition">
-                                + Lưu cân hôm nay
-                            </button>
+                        <!-- 3 Ô Chỉ số Calo -->
+                        <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-5">
+                            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
+                                <span class="text-[11px] text-slate-500 font-bold uppercase block">BMR (Trao đổi chất nền)</span>
+                                <div class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="bmrVal">1,477</div>
+                                <span class="text-[11px] text-slate-400">kcal / ngày</span>
+                            </div>
+                            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
+                                <span class="text-[11px] text-slate-500 font-bold uppercase block">TDEE (Tổng tiêu hao)</span>
+                                <div class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="tdeeVal">2,548</div>
+                                <span class="text-[11px] text-slate-400">kcal / ngày</span>
+                            </div>
+                            <div class="bg-gradient-to-br from-emerald-600 to-teal-600 text-white p-3.5 rounded-2xl shadow-md shadow-emerald-600/15 text-center">
+                                <span class="text-[11px] text-emerald-100 font-bold uppercase block">Mục Tiêu Cần Nạp</span>
+                                <div class="text-xl sm:text-3xl font-black mt-0.5" id="targetCalVal">2,848</div>
+                                <span class="text-[11px] text-emerald-100">kcal / ngày</span>
+                            </div>
                         </div>
-                        <div id="weightHistoryList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scroll text-xs"></div>
+
+                        <!-- Thanh Tỷ lệ Macro -->
+                        <div class="w-full h-3.5 rounded-full overflow-hidden flex mb-5 bg-slate-100 p-0.5 border border-slate-200">
+                            <div id="pBar" class="bg-rose-500 h-full rounded-l-full transition-all duration-300" style="width: 17%"></div>
+                            <div id="cBar" class="bg-amber-500 h-full transition-all duration-300" style="width: 61%"></div>
+                            <div id="fBar" class="bg-sky-500 h-full rounded-r-full transition-all duration-300" style="width: 22%"></div>
+                        </div>
+
+                        <!-- 4 Ô Macro + Chất Xơ -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                            <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-extrabold text-rose-700 uppercase">🥩 Đạm</span>
+                                    <span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-md whitespace-nowrap" id="pPerKgBadge">2.2g/kg</span>
+                                </div>
+                                <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="pGrams">121</span>g</div>
+                                <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
+                                    <span id="pCals">484 kcal</span>
+                                    <span class="text-rose-600 font-bold" id="pPercentText">17%</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-extrabold text-amber-700 uppercase">🍚 Tinh bột</span>
+                                    <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md whitespace-nowrap">Glycogen</span>
+                                </div>
+                                <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="cGrams">434</span>g</div>
+                                <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
+                                    <span id="cCals">1,736 kcal</span>
+                                    <span class="text-amber-700 font-bold" id="cPercentText">61%</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-sky-50/70 border border-sky-200 rounded-2xl p-3.5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-extrabold text-sky-700 uppercase">🥑 Béo</span>
+                                    <span class="text-[10px] font-bold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded-md whitespace-nowrap">Hormone</span>
+                                </div>
+                                <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="fGrams">70</span>g</div>
+                                <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
+                                    <span id="fCals">630 kcal</span>
+                                    <span class="text-sky-700 font-bold" id="fPercentText">22%</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-extrabold text-emerald-700 uppercase">🥦 Chất Xơ</span>
+                                    <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md whitespace-nowrap">14g/1000cal</span>
+                                </div>
+                                <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="fiberVal">40</span>g</div>
+                                <div class="text-[11px] text-emerald-700 mt-1 font-semibold">
+                                    ~450g rau & trái cây
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BẢNG VI CHẤT TƯƠNG TÁC -->
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                            <div class="flex justify-between items-center mb-2.5">
+                                <span class="text-xs font-extrabold text-slate-800">
+                                    <i class="fa-solid fa-vial-circle-check text-emerald-600 mr-1.5"></i>6 Nhóm Vi Chất Bảo Vệ Gân, Khớp Vai, Cổ Tay & Tăng Lực Kéo (Bấm chọn để xem định lượng):
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2" id="micronutrientTabs"></div>
+                            <div id="microDetailBox" class="mt-3 p-3.5 bg-white rounded-xl border border-emerald-200 text-xs text-slate-700"></div>
+                        </div>
+
+                        <!-- Nút Chuyển Nhanh Sang Trang Thực Đơn & Trang Nước -->
+                        <div class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="text-xs text-slate-500">
+                                💧 Nhu cầu nước cá nhân của bạn hôm nay: <strong id="quickWaterSummary" class="text-sky-600">2.90 Lít</strong>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="navigatePage(3)" class="px-3.5 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold transition">
+                                    <i class="fa-solid fa-droplet mr-1"></i>Chỉnh thông số Nước
+                                </button>
+                                <button onclick="navigatePage(2)" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition">
+                                    Xem Thực đơn 4 Bữa <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
             </div>
+        </section>
 
-            <!-- ================= CỘT PHẢI (8 CỘT): BẢNG ĐIỀU KHIỂN, THỰC ĐƠN, ĂN NGOÀI & TỪ ĐIỂN 100+ MÓN ================= -->
-            <div class="lg:col-span-8 space-y-6" id="rightColumn">
-                
-                <!-- KHU VỰC 1: BẢNG ĐIỀU KHIỂN NĂNG LƯỢNG, ĐA LƯỢNG & VI CHẤT -->
-                <div class="card-pro p-5 sm:p-6 rounded-3xl" id="section-dashboard">
-                    <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
-                        <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
-                            <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center mr-2 text-xs">4</span>
-                            Bảng Điều Khiển Năng Lượng & Đa Lượng Chuẩn Khoa Học
+        <!-- =========================================================================
+             TRANG 2: THỰC ĐƠN TƯƠNG TÁC 4 BỮA (KHỚP 100% CALO) & ĂN NGOÀI
+        ========================================================================== -->
+        <section id="page-2" class="page-view hidden">
+            <div class="card-pro p-5 sm:p-6 rounded-3xl">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center">
+                            <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mr-2.5 text-xs">2</span>
+                            Thực Đơn Tương Tác 4 Bữa (Cân Bằng Đa Chiều Chính Xác 100%)
                         </h2>
-                        <span class="text-xs font-bold bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-                            <i class="fa-solid fa-shield-check mr-1"></i>Đạm tính chuẩn theo Cân nặng (Không bị cắt giảm bởi Tinh bột)
-                        </span>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Thuật toán V5 tự động trừ lùi lượng <strong>Carb phụ (trong sữa/đậu)</strong> và <strong>Béo phụ (trong thịt/trứng/yến mạch)</strong> để tổng Calo 4 món khớp tuyệt đối với mục tiêu bữa ăn.
+                        </p>
                     </div>
-
-                    <!-- 3 Ô Chỉ số Calo -->
-                    <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-5">
-                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
-                            <span class="text-[11px] text-slate-500 font-bold uppercase block">BMR (Nằm nghỉ)</span>
-                            <div class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="bmrVal">1,538</div>
-                            <span class="text-[11px] text-slate-400">kcal / ngày</span>
-                        </div>
-                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
-                            <span class="text-[11px] text-slate-500 font-bold uppercase block">TDEE (Tổng tiêu hao)</span>
-                            <div class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="tdeeVal">2,652</div>
-                            <span class="text-[11px] text-slate-400">kcal / ngày</span>
-                        </div>
-                        <div class="bg-gradient-to-br from-emerald-600 to-teal-600 text-white p-3.5 rounded-2xl shadow-md shadow-emerald-600/15 text-center">
-                            <span class="text-[11px] text-emerald-100 font-bold uppercase block">Mục Tiêu Cần Nạp</span>
-                            <div class="text-xl sm:text-3xl font-black mt-0.5" id="targetCalVal">2,952</div>
-                            <span class="text-[11px] text-emerald-100">kcal / ngày</span>
-                        </div>
-                    </div>
-
-                    <!-- Thanh Tỷ lệ Macro -->
-                    <div class="w-full h-3.5 rounded-full overflow-hidden flex mb-5 bg-slate-100 p-0.5 border border-slate-200">
-                        <div id="pBar" class="bg-rose-500 h-full rounded-l-full transition-all duration-300" style="width: 17%"></div>
-                        <div id="cBar" class="bg-amber-500 h-full transition-all duration-300" style="width: 61%"></div>
-                        <div id="fBar" class="bg-sky-500 h-full rounded-r-full transition-all duration-300" style="width: 22%"></div>
-                    </div>
-
-                    <!-- 4 Ô Macro + Chất Xơ -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                        <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-3.5">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-extrabold text-rose-700 uppercase">🥩 Đạm (Protein)</span>
-                                <span class="text-[10px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-md" id="pPerKgBadge">2.2g/kg</span>
-                            </div>
-                            <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="pGrams">121</span>g</div>
-                            <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
-                                <span id="pCals">484 kcal</span>
-                                <span class="text-rose-600 font-bold" id="pPercentText">16%</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-extrabold text-amber-700 uppercase">🍚 Tinh bột (Carb)</span>
-                                <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md">Glycogen</span>
-                            </div>
-                            <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="cGrams">455</span>g</div>
-                            <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
-                                <span id="cCals">1,820 kcal</span>
-                                <span class="text-amber-700 font-bold" id="cPercentText">62%</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-sky-50/70 border border-sky-200 rounded-2xl p-3.5">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-extrabold text-sky-700 uppercase">🥑 Béo (Fat)</span>
-                                <span class="text-[10px] font-bold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded-md">Hormone</span>
-                            </div>
-                            <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="fGrams">72</span>g</div>
-                            <div class="flex justify-between text-[11px] text-slate-500 mt-1 font-medium">
-                                <span id="fCals">648 kcal</span>
-                                <span class="text-sky-700 font-bold" id="fPercentText">22%</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-xs font-extrabold text-emerald-700 uppercase">🥦 Chất Xơ</span>
-                                <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md">Tiêu hóa</span>
-                            </div>
-                            <div class="text-2xl sm:text-3xl font-black text-slate-900"><span id="fiberVal">38</span>g</div>
-                            <div class="text-[11px] text-emerald-700 mt-1 font-semibold">
-                                ~450g rau củ & trái cây
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- BẢNG VI CHẤT TƯƠNG TÁC (6 NHÓM VI CHẤT) -->
-                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                        <div class="flex justify-between items-center mb-2.5">
-                            <span class="text-xs font-extrabold text-slate-800">
-                                <i class="fa-solid fa-vial-circle-check text-emerald-600 mr-1.5"></i>Hệ Thống Vi Chất Bảo Vệ Gân, Khớp Vai, Cổ Tay & Tăng Lực Kéo (Bấm chọn từng vi chất):
-                            </span>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2" id="micronutrientTabs"></div>
-                        <div id="microDetailBox" class="mt-3 p-3.5 bg-white rounded-xl border border-emerald-200 text-xs text-slate-700"></div>
-                    </div>
+                    <button onclick="randomizeAllMeals()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center shrink-0">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>Đổi Thực Đơn Ngẫu Nhiên
+                    </button>
                 </div>
 
-                <!-- KHU VỰC 2: TRÌNH LẮP RÁP THỰC ĐƠN 4 BỮA + NHẬT KÝ ĂN NGOÀI HÀNG QUÁN -->
-                <div class="card-pro p-5 sm:p-6 rounded-3xl" id="section-meals">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-                        <div>
-                            <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
-                                <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center mr-2 text-xs">5</span>
-                                Thực Đơn Tương Tác Từng Bữa (Đạm Động Vật Chuẩn 100%)
-                            </h2>
-                            <p class="text-xs text-slate-500 mt-0.5">
-                                Thuật toán mới: <strong>Giữ nguyên 100% định lượng Đạm chất lượng cao</strong> ở mỗi bữa (không bị cắt giảm bởi đạm phụ trong tinh bột).
-                            </p>
-                        </div>
-                        <button onclick="randomizeAllMeals()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center shrink-0">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>Đổi Thực Đơn Ngẫu Nhiên
+                <!-- Hộp Ghi Nhận Nhanh Món Ăn Hàng Quán / Ăn Vặt -->
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-200 mb-6">
+                    <div class="text-xs font-extrabold text-amber-900 mb-2">
+                        <i class="fa-solid fa-bowl-rice text-amber-600 mr-1.5"></i>Hôm nay bạn đi ăn tiệm / uống nước bên ngoài? (Thêm nhanh để cộng vào thanh tiến độ):
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="streetFoodSelect" class="flex-1 px-3 py-2 rounded-xl bg-white border border-amber-300 text-xs font-bold text-slate-800 focus:outline-none"></select>
+                        <button onclick="addStreetFoodLog()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shrink-0">
+                            <i class="fa-solid fa-plus mr-1"></i>Thêm món đã ăn
                         </button>
                     </div>
+                    <div id="streetFoodLogList" class="mt-2.5 flex flex-wrap gap-2"></div>
+                </div>
 
-                    <!-- Hộp Ghi Nhận Nhanh Món Ăn Hàng Quán / Ăn Vặt (Quick Add Street Food) -->
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-200 mb-5">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                            <div class="text-xs font-extrabold text-amber-900">
-                                <i class="fa-solid fa-bowl-rice text-amber-600 mr-1.5"></i>Hôm nay bạn đi ăn tiệm / ăn vặt bên ngoài? (Thêm nhanh vào tiến độ trong ngày):
+                <!-- Danh sách 4 Bữa ăn tương tác -->
+                <div class="space-y-4" id="interactiveMealsContainer"></div>
+            </div>
+        </section>
+
+        <!-- =========================================================================
+             TRANG 3: TRẠM NƯỚC CÁ NHÂN HÓA ĐA BIẾN & ĐỒ UỐNG HIỆU SUẤT
+        ========================================================================== -->
+        <section id="page-3" class="page-view hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Cột Trái (5 cột): Bảng Điều Chỉnh Thông Số Nước Theo Từng Người -->
+                <div class="lg:col-span-5 card-pro p-5 sm:p-6 rounded-3xl h-fit">
+                    <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 mb-1 flex items-center">
+                        <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center mr-2 text-xs">1</span>
+                        Cấu Hình Chỉ Số Nước Cá Nhân Hóa
+                    </h2>
+                    <p class="text-xs text-slate-500 mb-4">Mỗi cơ thể có mức mất nước khác nhau. Hãy chỉnh đúng tình trạng của bạn hôm nay:</p>
+
+                    <div class="space-y-4">
+                        <!-- Thời gian tập thực tế -->
+                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                            <div class="flex justify-between text-xs font-bold mb-1.5">
+                                <span class="text-slate-700"><i class="fa-solid fa-stopwatch text-sky-600 mr-1.5"></i>Thời lượng buổi tập hôm nay:</span>
+                                <span id="workoutMinsLabel" class="text-sky-700 font-extrabold">60 phút</span>
+                            </div>
+                            <input type="range" id="workoutMins" min="0" max="150" step="15" value="60" oninput="calculateAll()" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <span>Nghỉ (0p)</span>
+                                <span>45p</span>
+                                <span>60p</span>
+                                <span>90p</span>
+                                <span>150p</span>
                             </div>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-2">
-                            <select id="streetFoodSelect" class="flex-1 px-3 py-2 rounded-xl bg-white border border-amber-300 text-xs font-bold text-slate-800 focus:outline-none">
-                                <!-- Render bằng JS -->
-                            </select>
-                            <button onclick="addStreetFoodLog()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition shrink-0">
-                                <i class="fa-solid fa-plus mr-1"></i>Thêm món đã ăn
-                            </button>
-                        </div>
-                        <div id="streetFoodLogList" class="mt-2.5 flex flex-wrap gap-2"></div>
-                    </div>
 
-                    <!-- Danh sách 4 Bữa ăn tương tác -->
-                    <div class="space-y-4" id="interactiveMealsContainer"></div>
-                </div>
-
-                <!-- KHU VỰC 3: ĐẠI TỪ ĐIỂN 100+ THỰC PHẨM, MÓN VIỆT NAM & SUPPLEMENTS -->
-                <div class="card-pro p-5 sm:p-6 rounded-3xl" id="section-encyclopedia">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                        <!-- Nhiệt độ / Thời tiết nơi tập -->
                         <div>
-                            <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
-                                <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center mr-2 text-xs">6</span>
-                                Đại Từ Điển Thực Phẩm Toàn Diện (<span id="totalFoodCountBadge">90+</span> Nguồn Thức Ăn)
-                            </h2>
-                            <p class="text-xs text-slate-500 mt-0.5">
-                                Đầy đủ tất cả Thịt, Cá, Hải sản, Trứng, Sữa, Đậu, Tinh bột, Trái cây, Rau củ, Món tiệm & Thực phẩm bổ sung.
-                            </p>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-temperature-half text-amber-500 mr-1"></i>Thời tiết / Môi trường chỗ bạn tập:
+                            </label>
+                            <select id="weatherCond" onchange="calculateAll()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none">
+                                <option value="0">❄️ Mát mẻ / Phòng máy lạnh (&lt; 26°C) • +0 ml</option>
+                                <option value="350" selected>🌤️ Thời tiết bình thường / Công viên thoáng (27 - 32°C) • +350 ml</option>
+                                <option value="700">☀️ Nóng bức / Nắng gắt mùa hè (&gt; 33°C) • +700 ml</option>
+                            </select>
                         </div>
-                        <div class="relative w-full sm:w-64">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                            <input type="text" id="foodSearchInput" oninput="renderEncyclopedia()" placeholder="Tìm bất kỳ món nào (vd: hàu, phở, ổi...)"
-                                class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs font-medium focus:outline-none focus:border-emerald-500">
+
+                        <!-- Cơ địa tiết mồ hôi -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-person-swimming text-emerald-600 mr-1"></i>Cơ địa tiết mồ hôi của bạn:
+                            </label>
+                            <select id="sweatRate" onchange="calculateAll()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none">
+                                <option value="-150">💧 Ra ít mồ hôi (Áo chỉ hơi ẩm) • -150 ml</option>
+                                <option value="0" selected>💦 Trung bình (Ra mồ hôi vừa phải) • Chuẩn</option>
+                                <option value="400">🌊 Ra rất nhiều mồ hôi (Ướt đẫm áo khi tập) • +400 ml</option>
+                            </select>
+                        </div>
+
+                        <!-- Dùng Creatine / Caffeine -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                <i class="fa-solid fa-bolt text-purple-600 mr-1"></i>Sử dụng Cà phê / Creatine:
+                            </label>
+                            <select id="suppWater" onchange="calculateAll()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-800 focus:outline-none">
+                                <option value="0" selected>Không dùng Creatine • +0 ml</option>
+                                <option value="300">Có uống Cà phê đen trước tập (Lợi tiểu nhẹ) • +300 ml</option>
+                                <option value="500">Có dùng Creatine Monohydrate (Trữ nước vào cơ) • +500 ml</option>
+                            </select>
+                        </div>
+
+                        <!-- Bảng giải thích chi tiết từng khoản cộng nước -->
+                        <div class="bg-sky-50/80 p-4 rounded-2xl border border-sky-200 space-y-1.5 text-xs">
+                            <div class="font-extrabold text-sky-900 mb-2">📊 Bóc tách công thức tính nước của riêng bạn:</div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>1. Nhu cầu nền theo cân nặng & giới tính:</span>
+                                <strong id="wBaseText" class="text-slate-900">1,925 ml</strong>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>2. Bù nước theo thời gian tập luyện:</span>
+                                <strong id="wWorkoutText" class="text-slate-900">+720 ml</strong>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>3. Bù nhiệt độ thời tiết & cơ địa mồ hôi:</span>
+                                <strong id="wEnvText" class="text-slate-900">+350 ml</strong>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>4. Bù chuyển hóa đạm & thực phẩm bổ sung:</span>
+                                <strong id="wSuppText" class="text-slate-900">+0 ml</strong>
+                            </div>
+                            <div class="border-t border-sky-200 pt-2 mt-2 flex justify-between text-sm font-black text-sky-800">
+                                <span>TỔNG CẦN UỐNG HÔM NAY:</span>
+                                <span id="wTotalExactText">2,995 ml (3.00 Lít)</span>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Bộ lọc danh mục -->
-                    <div class="flex gap-2 overflow-x-auto custom-scroll pb-2 mb-4 text-xs font-bold">
-                        <button onclick="setFoodCategory('all')" data-cat="all" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-900 text-white shrink-0">Tất cả</button>
-                        <button onclick="setFoodCategory('protein')" data-cat="protein" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 shrink-0">🥩 Đạm (Thịt/Cá/Hải sản/Đậu)</button>
-                        <button onclick="setFoodCategory('carb')" data-cat="carb" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 shrink-0">🍚 Tinh Bột (Cơm/Khoai/Bún/Bánh)</button>
-                        <button onclick="setFoodCategory('fat')" data-cat="fat" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-sky-50 text-sky-800 border border-sky-200 shrink-0">🥑 Chất Béo & Các Loại Hạt</button>
-                        <button onclick="setFoodCategory('veg')" data-cat="veg" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">🥦 Rau Củ & Trái Cây</button>
-                        <button onclick="setFoodCategory('street')" data-cat="street" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-orange-50 text-orange-800 border border-orange-200 shrink-0">🍜 Cơm Tiệm & Đồ Uống</button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto custom-scroll pr-1" id="encyclopediaGrid"></div>
                 </div>
 
-                <!-- KHU VỰC 4: DANH SÁCH ĐI CHỢ TỰ ĐỘNG (GROCERY LIST) -->
-                <div class="card-pro p-5 sm:p-6 rounded-3xl" id="section-grocery">
+                <!-- Cột Phải (7 cột): Khay Đếm Cốc Nước, Lịch Uống Theo Giờ & 8 Đồ Uống -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="card-pro p-5 sm:p-6 rounded-3xl">
+                        <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                            <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
+                                <span class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center mr-2 text-xs">2</span>
+                                Bộ Đếm Ly Nước & Lịch Trình Cấp Nước Theo Giờ
+                            </h2>
+                            <span class="text-xs font-extrabold text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200" id="waterTargetBadge">3.00 Lít (12 cốc)</span>
+                        </div>
+
+                        <p class="text-xs text-slate-500 mb-3">Chạm vào từng ly (250ml) mỗi khi bạn uống nước:</p>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2.5 mb-4" id="waterCupsContainer"></div>
+                        
+                        <div class="flex justify-between items-center text-xs bg-sky-50 px-4 py-2.5 rounded-xl border border-sky-200 mb-5">
+                            <span class="font-bold text-slate-700">Đã uống hôm nay:</span>
+                            <strong class="text-sky-700 text-sm" id="waterConsumedText">0.00 / 3.00 Lít</strong>
+                        </div>
+
+                        <!-- Lịch phân bổ nước theo khung giờ chuẩn khoa học -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5 text-xs" id="waterScheduleBoxes"></div>
+
+                        <!-- Tra cứu 8 Công thức Đồ uống -->
+                        <div class="border-t border-slate-200 pt-4">
+                            <label class="block text-xs font-extrabold text-slate-800 mb-2">
+                                <i class="fa-solid fa-mug-hot text-amber-600 mr-1.5"></i>8 Công Thức Đồ Uống Tăng Hiệu Suất & Phục Hồi Khớp:
+                            </label>
+                            <select id="drinkSelector" onchange="renderSelectedDrink()" class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-800 mb-3 focus:outline-none">
+                                <option value="pre_coffee">☕ 1. Cà phê đen / Americano (Trước tập 30p)</option>
+                                <option value="intra_elec">🥥 2. Nước dừa tươi + Muối hồng (Trong khi tập)</option>
+                                <option value="post_shake">🍌 3. Sinh tố Mass Tự nhiên: Chuối + Yến mạch + Bơ đậu phộng (610 kcal)</option>
+                                <option value="morning_detox">🍋 4. Nước ấm Chanh + Mật ong (Sáng ngủ dậy)</option>
+                                <option value="matcha_tea">🍵 5. Trà xanh / Matcha không đường (Tỉnh táo, tập trung Handstand)</option>
+                                <option value="soy_milk">🥛 6. Sữa tươi không đường / Sữa đậu nành (Bữa phụ giàu Canxi)</option>
+                                <option value="ginger_joint">🫚 7. Trà Gừng + Cam sả (Kháng viêm cổ tay & khớp vai)</option>
+                                <option value="night_milk">🌙 8. Sữa ấm Casein (Trước ngủ 1 tiếng nuôi cơ ban đêm)</option>
+                            </select>
+                            <div id="drinkDetailBox" class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs text-slate-700"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================================================================
+             TRANG 4: ĐẠI TỪ ĐIỂN THỰC PHẨM (CÓ PHÂN TRANG SỐ 1, 2, 3...)
+        ========================================================================== -->
+        <section id="page-4" class="page-view hidden">
+            <div class="card-pro p-5 sm:p-6 rounded-3xl">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center">
+                            <span class="w-7 h-7 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mr-2.5 text-xs">4</span>
+                            Đại Từ Điển Thực Phẩm Việt Nam (<span id="totalFoodCountBadge">56</span> Món Chọn Lọc)
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Đã được phân trang gọn gàng (9 món/trang) để không bị dài trang. Tự động tính khẩu phần cho 1 bữa ăn của bạn.
+                        </p>
+                    </div>
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="foodSearchInput" oninput="resetFoodPageAndRender()" placeholder="Tìm món (vd: ức gà, hàu, phở, ổi...)"
+                            class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs font-medium focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Bộ lọc danh mục -->
+                <div class="flex flex-wrap gap-2 pb-2 mb-4 text-xs font-bold">
+                    <button onclick="setFoodCategory('all')" data-cat="all" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-900 text-white">Tất cả</button>
+                    <button onclick="setFoodCategory('protein')" data-cat="protein" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">🥩 Đạm (Thịt/Cá/Hải sản/Đậu)</button>
+                    <button onclick="setFoodCategory('carb')" data-cat="carb" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">🍚 Tinh Bột (Cơm/Khoai/Bún/Bánh)</button>
+                    <button onclick="setFoodCategory('fat')" data-cat="fat" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">🥑 Chất Béo & Hạt</button>
+                    <button onclick="setFoodCategory('veg')" data-cat="veg" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">🥦 Rau Củ & Trái Cây</button>
+                    <button onclick="setFoodCategory('street')" data-cat="street" class="food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">🍜 Cơm Tiệm & Đồ Uống</button>
+                </div>
+
+                <!-- Lưới hiển thị 9 món mỗi trang -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 min-h-[360px]" id="encyclopediaGrid"></div>
+
+                <!-- Thanh Phân Trang (Pagination Bar) -->
+                <div class="mt-6 pt-4 border-t border-slate-200 flex flex-wrap justify-between items-center gap-3">
+                    <span class="text-xs text-slate-500 font-semibold" id="foodPageInfoText">Đang hiển thị trang 1 / 6</span>
+                    <div class="flex items-center gap-1.5" id="foodPaginationButtons"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================================
+             TRANG 5: DANH SÁCH ĐI CHỢ (QUY ĐỔI ĐỒ SỐNG) & THÁP KỸ NĂNG CALISTHENICS
+        ========================================================================== -->
+        <section id="page-5" class="page-view hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Cột Trái (7 cột): Danh sách đi chợ tự động quy đổi Gạo khô / Thịt sống -->
+                <div class="lg:col-span-7 card-pro p-5 sm:p-6 rounded-3xl h-fit">
                     <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
                         <div>
                             <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 flex items-center">
-                                <span class="w-6 h-6 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center mr-2 text-xs">7</span>
-                                Danh Sách Đi Chợ / Siêu Thị (Tự Động Cộng Từ Thực Đơn)
+                                <span class="w-6 h-6 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center mr-2 text-xs">1</span>
+                                Danh Sách Đi Chợ / Siêu Thị (Chuẩn Khối Lượng Mua Sống)
                             </h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Tích vào từng ô khi bạn đã mua xong món đó ngoài chợ hoặc siêu thị:</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Tự động quy đổi Cơm chín/Mì chín ra <strong>trọng lượng Gạo khô/Mì khô</strong> khi đi mua hàng:</p>
                         </div>
                         <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
                             <button onclick="setGroceryDays(1)" id="gDay-1" class="px-3 py-1 rounded-lg bg-white text-emerald-700 shadow-sm">1 Ngày</button>
@@ -458,35 +604,69 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" id="groceryListContainer"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="groceryListContainer"></div>
+                </div>
+
+                <!-- Cột Phải (5 cột): Tháp Kỹ năng Calisthenics & Lịch sử Cân nặng -->
+                <div class="lg:col-span-5 card-pro p-5 sm:p-6 rounded-3xl h-fit">
+                    <h2 class="text-sm font-extrabold uppercase tracking-wider text-slate-800 mb-3 flex items-center">
+                        <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center mr-2 text-xs">2</span>
+                        Tháp Kỹ Năng Calisthenics & Lịch Sử Cân Nặng
+                    </h2>
+
+                    <div class="bg-slate-900 text-white p-4 rounded-2xl mb-5">
+                        <div class="flex justify-between items-center text-xs mb-1.5">
+                            <span class="font-bold text-emerald-400">Đánh giá Tỷ lệ Sức mạnh / Cân nặng:</span>
+                            <span id="bmiBadge" class="bg-white/15 px-2.5 py-0.5 rounded-full text-[11px] font-bold">BMI: 18.2</span>
+                        </div>
+                        <p id="caliStatusText" class="text-xs text-slate-200 leading-relaxed mb-3"></p>
+                        <div class="grid grid-cols-2 gap-2.5 text-xs border-t border-slate-700 pt-3" id="skillBenchmarks"></div>
+                    </div>
+
+                    <!-- Nhật ký cân nặng -->
+                    <div class="border-t border-slate-200 pt-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-extrabold text-slate-800"><i class="fa-solid fa-weight-scale text-emerald-600 mr-1.5"></i>Lịch sử theo dõi cân nặng:</span>
+                            <button onclick="logCurrentWeight()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl font-bold transition">
+                                + Lưu cân hôm nay
+                            </button>
+                        </div>
+                        <div id="weightHistoryList" class="space-y-2 max-h-48 overflow-y-auto pr-1 text-xs"></div>
+                    </div>
                 </div>
 
             </div>
-        </div>
+        </section>
+
     </main>
 
-    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY MÀN HÌNH ĐIỆN THOẠI -->
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-1.5 flex justify-around items-center text-[11px] font-bold text-slate-500 shadow-lg">
-        <button onclick="scrollToSection('leftColumn')" class="flex flex-col items-center py-1 px-2 text-emerald-600">
-            <i class="fa-solid fa-sliders text-base mb-0.5"></i>
-            <span>Hồ sơ & Nước</span>
-        </button>
-        <button onclick="scrollToSection('section-dashboard')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-600">
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY MÀN HÌNH ĐIỆN THOẠI (5 TRANG) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-1 py-1.5 grid grid-cols-5 text-[10px] font-bold text-slate-400 shadow-lg">
+        <button onclick="navigatePage(1)" id="mobNav-1" class="flex flex-col items-center py-1 nav-active-mobile">
             <i class="fa-solid fa-chart-pie text-base mb-0.5"></i>
-            <span>Macro & Vi chất</span>
+            <span>1. Tổng quan</span>
         </button>
-        <button onclick="scrollToSection('section-meals')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-600">
+        <button onclick="navigatePage(2)" id="mobNav-2" class="flex flex-col items-center py-1">
             <i class="fa-solid fa-utensils text-base mb-0.5"></i>
-            <span>Thực đơn</span>
+            <span>2. Thực đơn</span>
         </button>
-        <button onclick="scrollToSection('section-encyclopedia')" class="flex flex-col items-center py-1 px-2 hover:text-emerald-600">
+        <button onclick="navigatePage(3)" id="mobNav-3" class="flex flex-col items-center py-1">
+            <i class="fa-solid fa-droplet text-base mb-0.5"></i>
+            <span>3. Trạm Nước</span>
+        </button>
+        <button onclick="navigatePage(4)" id="mobNav-4" class="flex flex-col items-center py-1">
             <i class="fa-solid fa-book-open text-base mb-0.5"></i>
-            <span>Kho 100+ Món</span>
+            <span>4. Kho Món</span>
+        </button>
+        <button onclick="navigatePage(5)" id="mobNav-5" class="flex flex-col items-center py-1">
+            <i class="fa-solid fa-cart-shopping text-base mb-0.5"></i>
+            <span>5. Đi chợ</span>
         </button>
     </nav>
 
     <script>
-        // ==================== ĐẠI CƠ SỞ DỮ LIỆU THỰC PHẨM VIỆT NAM (90+ MÓN ĐẦY ĐỦ NHẤT) ====================
+        // ==================== CƠ SỞ DỮ LIỆU THỰC PHẨM CHUẨN USDA & VIỆN DINH DƯỠNG VN ====================
+        // rawFactor: hệ số quy đổi từ đồ chín sang đồ sống để đi chợ (ví dụ Cơm chín * 0.42 = Gạo khô)
         const FOOD_DB = {
             protein: [
                 { id: 'uc_ga', name: 'Ức gà phi lê (cân sống)', p: 23, c: 0, f: 1.5, cal: 110, unit: 'g', unitWeight: 1, note: 'Đạm nạc chuẩn mực nhất, giàu Leucine tăng cơ' },
@@ -494,30 +674,30 @@
                 { id: 'thit_bo_than', name: 'Thịt bò thăn / Bắp bò / Thăn nội', p: 21, c: 0, f: 3.8, cal: 122, unit: 'g', unitWeight: 1, note: 'Giàu Creatine tự nhiên, Sắt heme & Kẽm tăng Testosterone' },
                 { id: 'thit_bo_xay', name: 'Thịt bò bằm / Bò viên nạc', p: 19, c: 1, f: 8.0, cal: 155, unit: 'g', unitWeight: 1, note: 'Dễ nấu cháo, mì Ý hoặc xào cà chua' },
                 { id: 'heo_nac', name: 'Thịt heo thăn / Nạc dăm / Sườn nạc', p: 20, c: 0, f: 4.5, cal: 125, unit: 'g', unitWeight: 1, note: 'Rất giàu Vitamin B1 giúp chuyển hóa Tinh bột thành lực' },
-                { id: 'trung_ga', name: 'Trứng gà nguyên quả (luộc/ốp)', p: 13, c: 1, f: 10, cal: 145, unit: 'quả', unitWeight: 55, note: '1 quả (~55g) = 7g Đạm chuẩn + Choline & Vitamin D3' },
+                { id: 'trung_ga', name: 'Trứng gà nguyên quả (luộc/ốp)', p: 13, c: 1, f: 10, cal: 145, unit: 'quả', unitWeight: 55, note: '1 quả (~55g) = 7.1g Đạm chuẩn + Choline & Vitamin D3' },
                 { id: 'long_trang_trung', name: 'Lòng trắng trứng gà', p: 11, c: 0.7, f: 0.2, cal: 52, unit: 'lòng trắng', unitWeight: 35, note: '100% Albumin tinh khiết không chứa chất béo' },
                 { id: 'trung_vit', name: 'Trứng vịt / Trứng vịt lộn', p: 13.5, c: 1.5, f: 13, cal: 182, unit: 'quả', unitWeight: 65, note: 'Năng lượng & Sắt cực cao cho người cần tăng cân' },
                 { id: 'ca_hoi', name: 'Cá hồi phi lê / Cá thu / Cá ngừ', p: 21, c: 0, f: 9.0, cal: 168, unit: 'g', unitWeight: 1, note: 'Vua Omega-3 (EPA/DHA) kháng viêm khớp vai & cổ tay' },
                 { id: 'ca_ro_phi', name: 'Cá điêu hồng / Rô phi / Basa / Cá lóc', p: 19, c: 0, f: 2.5, cal: 105, unit: 'g', unitWeight: 1, note: 'Đạm trắng siêu dễ tiêu hóa, không gây nặng bụng' },
-                { id: 'ca_ngu_hop', name: 'Cá ngừ ngâm nước muối đóng hộp', p: 24, c: 0, f: 1.0, cal: 108, unit: 'hộp (120g cái)', unitWeight: 120, note: 'Ăn liền tiện lợi cùng bánh mì hoặc cơm/salad' },
+                { id: 'ca_ngu_hop', name: 'Cá ngừ ngâm nước muối đóng hộp', p: 24, c: 0, f: 1.0, cal: 108, unit: 'hộp (120g)', unitWeight: 120, note: 'Ăn liền tiện lợi cùng bánh mì hoặc cơm/salad' },
                 { id: 'tom_tuoi', name: 'Tôm sú / Tôm thẻ tươi (bóc vỏ)', p: 21, c: 1, f: 1.0, cal: 99, unit: 'g', unitWeight: 1, note: 'Đạm tinh khiết, giàu Astaxanthin & Canxi' },
                 { id: 'muc_bach_tuoc', name: 'Mực ống / Bạch tuộc tươi', p: 18, c: 1.5, f: 1.2, cal: 92, unit: 'g', unitWeight: 1, note: 'Giàu Taurine giúp phục hồi hệ thần kinh cơ' },
                 { id: 'hau_ngheu', name: 'Thịt Hàu sữa / Nghêu / Sò huyết', p: 14, c: 4, f: 2.0, cal: 90, unit: 'g', unitWeight: 1, note: 'Lượng Kẽm (Zinc) cao số 1 tự nhiên, tối ưu Hormone' },
                 { id: 'thit_vit_ngan', name: 'Thịt ức vịt / Thịt ngan (bỏ da)', p: 20, c: 0, f: 6.0, cal: 138, unit: 'g', unitWeight: 1, note: 'Đổi vị giàu Sắt và Vitamin nhóm B' },
                 { id: 'dau_hu', name: 'Đậu hũ trắng / Tàu hũ non', p: 9, c: 2, f: 4.5, cal: 85, unit: 'bìa (110g)', unitWeight: 110, note: 'Đạm thực vật thanh mát, giàu Canxi & Isoflavone' },
                 { id: 'dau_nanh_hat', name: 'Đậu nành / Đậu xanh / Đậu đen luộc', p: 16, c: 15, f: 8.0, cal: 195, unit: 'g', unitWeight: 1, note: 'Nguồn đạm thực vật + Magie, Kali và Chất xơ dồi dào' },
-                { id: 'sua_chua_combo', name: 'Combo Sữa chua Hy Lạp + 2 quả Trứng', p: 12, c: 5, f: 6.0, cal: 125, unit: 'g', unitWeight: 1, note: 'Kết hợp Sữa chua & Trứng đảm bảo đủ 100% Đạm bữa sáng' },
-                { id: 'whey_isolate', name: 'Whey Protein Isolate + 1 bịch Sữa tươi', p: 25, c: 5, f: 2.0, cal: 138, unit: 'khẩu phần (130g)', unitWeight: 130, note: '1 muỗng Whey (24g P) pha cùng 1 bịch sữa tươi không đường (7g P)' }
+                { id: 'sua_chua_combo', name: 'Combo Sữa chua Hy Lạp + 2 Trứng gà', p: 12, c: 5, f: 6.0, cal: 125, unit: 'g', unitWeight: 1, note: 'Kết hợp Sữa chua & Trứng đảm bảo đủ 100% Đạm bữa sáng' },
+                { id: 'whey_isolate', name: 'Whey Protein Isolate + 1 bịch Sữa tươi', p: 25, c: 5, f: 2.0, cal: 138, unit: 'khẩu phần', unitWeight: 130, note: '1 muỗng Whey (24g P) pha cùng 1 bịch sữa tươi không đường (7g P)' }
             ],
             carb: [
-                { id: 'com_trang', name: 'Cơm trắng nấu chín', p: 2.7, c: 28, f: 0.3, cal: 130, unit: 'chén vừa (155g)', unitWeight: 155, note: '1 chén ~ 44g Carb, dễ tiêu hóa, nạp Glycogen nhanh' },
-                { id: 'gao_lut', name: 'Cơm gạo lứt / Gạo huyết rồng chín', p: 2.6, c: 23, f: 0.9, cal: 111, unit: 'chén (155g)', unitWeight: 155, note: 'Carb chậm (GI thấp), giàu Vitamin B1 và Magie' },
-                { id: 'khoai_lang', name: 'Khoai lang mật / Khoai Nhật luộc', p: 1.6, c: 20, f: 0.1, cal: 86, unit: 'củ vừa (160g)', unitWeight: 160, note: 'Năng lượng bền bỉ, giàu Kali và Beta-carotene' },
+                { id: 'com_trang', name: 'Cơm trắng nấu chín', p: 2.7, c: 28, f: 0.3, cal: 130, unit: 'chén (155g)', unitWeight: 155, rawName: 'Gạo tẻ trắng (cân khô)', rawFactor: 0.42, note: '1 chén ~ 43.4g Carb, dễ tiêu hóa, nạp Glycogen nhanh' },
+                { id: 'gao_lut', name: 'Cơm gạo lứt nấu chín', p: 2.6, c: 23, f: 0.9, cal: 111, unit: 'chén (155g)', unitWeight: 155, rawName: 'Gạo lứt (cân khô)', rawFactor: 0.42, note: 'Carb chậm (GI thấp), giàu Vitamin B1 và Magie' },
+                { id: 'khoai_lang', name: 'Khoai lang mật / Khoai Nhật', p: 1.6, c: 20, f: 0.1, cal: 86, unit: 'củ (160g)', unitWeight: 160, note: 'Năng lượng bền bỉ, giàu Kali và Beta-carotene' },
                 { id: 'khoai_tay', name: 'Khoai tây luộc / Nghiền / Đút lò', p: 2.0, c: 17, f: 0.1, cal: 77, unit: 'g', unitWeight: 1, note: 'Chỉ số no cao nhất, cực giàu Kali chống chuột rút' },
-                { id: 'yen_mach', name: 'Yến mạch cán dẹt (Quaker Oats khô)', p: 13, c: 66, f: 6.5, cal: 375, unit: 'g (cân khô)', unitWeight: 1, note: 'Siêu thực phẩm bữa sáng và trước tập, giữ sức bền lâu' },
-                { id: 'banh_mi', name: 'Bánh mì Việt Nam / Sandwich nguyên cám', p: 8, c: 50, f: 2.0, cal: 255, unit: 'ổ (90g)', unitWeight: 90, note: '1 ổ ~ 45g Carb, nhanh gọn cho bữa sáng hoặc bữa phụ' },
+                { id: 'yen_mach', name: 'Yến mạch cán dẹt (cân khô)', p: 13, c: 66, f: 6.5, cal: 375, unit: 'g', unitWeight: 1, note: 'Siêu thực phẩm bữa sáng và trước tập, giữ sức bền lâu' },
+                { id: 'banh_mi', name: 'Bánh mì Việt Nam / Sandwich', p: 8, c: 50, f: 2.0, cal: 255, unit: 'ổ (90g)', unitWeight: 90, note: '1 ổ ~ 45g Carb, nhanh gọn cho bữa sáng hoặc bữa phụ' },
                 { id: 'bun_pho', name: 'Bánh Phở / Sợi Bún tươi / Hủ tiếu', p: 3.0, c: 25, f: 0.2, cal: 115, unit: 'g', unitWeight: 1, note: 'Món nước dễ nuốt khi ngán cơm' },
-                { id: 'mi_y_pasta', name: 'Mì Ý (Pasta) / Nui / Miến dong chín', p: 5.0, c: 31, f: 0.9, cal: 155, unit: 'g', unitWeight: 1, note: 'Nguồn Carb chất lượng cao của vận động viên châu Âu' },
+                { id: 'mi_y_pasta', name: 'Mì Ý (Pasta) / Nui luộc chín', p: 5.0, c: 31, f: 0.9, cal: 155, unit: 'g', unitWeight: 1, rawName: 'Mì Ý / Nui (cân khô)', rawFactor: 0.45, note: 'Nguồn Carb chất lượng cao của vận động viên châu Âu' },
                 { id: 'chuoi_chin', name: 'Chuối chín (Chuối sứ / Chuối già)', p: 1.1, c: 23, f: 0.3, cal: 89, unit: 'quả (110g)', unitWeight: 110, note: '1 quả ~ 25g Carb + 400mg Kali bơm lực trước tập' },
                 { id: 'ngo_bap', name: 'Bắp ngọt (Ngô) luộc / Xôi nếp', p: 3.5, c: 22, f: 1.2, cal: 110, unit: 'trái (180g)', unitWeight: 180, note: 'Giàu năng lượng, dễ mang theo đi tập' },
                 { id: 'ngu_coc_granola', name: 'Ngũ cốc Granola / Gạo lứt sấy', p: 10, c: 60, f: 12, cal: 390, unit: 'g', unitWeight: 1, note: 'Ăn liền cùng sữa chua hoặc sữa tươi' }
@@ -527,7 +707,7 @@
                 { id: 'qua_bo', name: 'Thịt quả Bơ sáp Đà Lạt', p: 2.0, c: 8.5, f: 15, cal: 160, unit: 'g', unitWeight: 1, note: 'Chất béo tốt bảo vệ tim mạch, khớp và tăng hấp thu Vitamin' },
                 { id: 'hat_dieu_hanh_nhan', name: 'Hạt điều / Hạnh nhân / Đậu phộng', p: 19, c: 22, f: 50, cal: 575, unit: 'g', unitWeight: 1, note: 'Giàu Magie, Kẽm, Đồng và Vitamin E' },
                 { id: 'hat_oc_cho', name: 'Hạt Óc chó / Hạt Macca / Hạt Bí', p: 15, c: 14, f: 65, cal: 654, unit: 'g', unitWeight: 1, note: 'Giàu ALA (Omega-3 thực vật) tốt cho não bộ và khớp' },
-                { id: 'dau_oliu', name: 'Dầu ô liu Extra Virgin / Dầu mè / Dầu cá', p: 0, c: 0, f: 100, cal: 884, unit: 'muỗng (10g)', unitWeight: 10, note: 'Trộn salad hoặc rưới lên thức ăn sau khi nấu' },
+                { id: 'dau_oliu', name: 'Dầu ô liu Extra Virgin / Dầu mè', p: 0, c: 0, f: 100, cal: 884, unit: 'muỗng (10g)', unitWeight: 10, note: 'Trộn salad hoặc rưới lên thức ăn sau khi nấu' },
                 { id: 'pho_mai', name: 'Phô mai lát Cheddar / Con bò cười', p: 18, c: 2, f: 25, cal: 310, unit: 'miếng (15g)', unitWeight: 15, note: 'Giàu Canxi, Vitamin K2 và Chất béo dễ tiêu' },
                 { id: 'hat_chia_me', name: 'Hạt Chia / Hạt lanh / Vừng mè đen', p: 17, c: 42, f: 31, cal: 486, unit: 'muỗng (15g)', unitWeight: 15, note: 'Siêu giàu Chất xơ hòa tan, Canxi và Omega-3' },
                 { id: 'so_co_la_den', name: 'Socola đen (Dark Chocolate 75-85%)', p: 8, c: 45, f: 42, cal: 580, unit: 'g', unitWeight: 1, note: 'Tăng Nitric Oxide làm giãn mạch, bơm máu vào cơ khi tập' }
@@ -536,9 +716,9 @@
                 { id: 'bong_cai', name: 'Bông cải xanh (Súp lơ) + Cà rốt', p: 2.8, c: 7, f: 0.4, cal: 34, unit: 'g', unitWeight: 1, note: 'Vua rau củ cho người tập: Giàu Vitamin C, K, Folate & Chất xơ' },
                 { id: 'rau_cai', name: 'Rau cải ngọt / Cải thìa / Rau muống', p: 2.0, c: 4, f: 0.2, cal: 22, unit: 'g', unitWeight: 1, note: 'Giàu Canxi thực vật, Magie và Sắt' },
                 { id: 'rau_bina', name: 'Cải bó xôi (Rau chân vịt) / Mồng tơi', p: 2.9, c: 3.6, f: 0.4, cal: 23, unit: 'g', unitWeight: 1, note: 'Chứa Nitrat tự nhiên và Ecdysterone hỗ trợ sức bền cơ' },
-                { id: 'dua_leo_ca_chua', name: 'Salad Dưa leo + Cà chua + Xà lách + Ớt chuông', p: 1.2, c: 4.5, f: 0.2, cal: 22, unit: 'g', unitWeight: 1, note: 'Ớt chuông chứa lượng Vitamin C gấp 3 lần cam, tái tạo gân' },
+                { id: 'dua_leo_ca_chua', name: 'Salad Dưa leo + Cà chua + Ớt chuông', p: 1.2, c: 4.5, f: 0.2, cal: 22, unit: 'g', unitWeight: 1, note: 'Ớt chuông chứa lượng Vitamin C gấp 3 lần cam, tái tạo gân' },
                 { id: 'cam_oi', name: 'Ổi / Cam sành / Quýt / Bưởi', p: 1.0, c: 11, f: 0.2, cal: 48, unit: 'g', unitWeight: 1, note: 'Nguồn Vitamin C tự nhiên đỉnh nhất để tổng hợp Collagen cổ tay' },
-                { id: 'dua_hau_thanh_long', name: 'Dưa hấu / Thanh long / Dứa (Thơm)', p: 0.8, c: 9, f: 0.2, cal: 38, unit: 'g', unitWeight: 1, note: 'Dưa hấu giàu L-Citrulline giảm đau nhức cơ, Dứa giàu Bromelain tiêu đạm' },
+                { id: 'dua_hau_thanh_long', name: 'Dưa hấu / Thanh long / Dứa (Thơm)', p: 0.8, c: 9, f: 0.2, cal: 38, unit: 'g', unitWeight: 1, note: 'Dưa hấu giàu L-Citrulline giảm đau nhức cơ, Dứa tiêu đạm' },
                 { id: 'tao_xoai_nho', name: 'Táo / Xoài chín / Đu đủ / Nho', p: 0.6, c: 14, f: 0.2, cal: 58, unit: 'g', unitWeight: 1, note: 'Giàu Quercetin, Enzyme tiêu hóa và chất chống oxy hóa' },
                 { id: 'nam_cac_loai', name: 'Nấm đùi gà / Nấm kim châm / Nấm hương', p: 3.3, c: 5, f: 0.4, cal: 35, unit: 'g', unitWeight: 1, note: 'Giàu Vitamin D tự nhiên, Selenium và vị ngọt Umami' }
             ],
@@ -556,22 +736,21 @@
             ]
         };
 
-        // TỪ ĐIỂN 8 CÔNG THỨC ĐỒ UỐNG TẬP LUYỆN
         const DRINK_RECIPES = {
             pre_coffee: {
                 title: '☕ Cà Phê Đen / Americano (Uống trước tập 30 - 45 phút)',
                 macros: '5 kcal • 150mg Caffeine • 0g Đường',
-                desc: 'Kích thích hệ thần kinh trung ương (CNS), giảm cảm giác mỏi cơ và giúp bạn phát lực kéo (Pull-up / Muscle-up) mạnh hơn 10-15%. Nếu sợ đắng có thể pha thêm 30ml sữa tươi không đường.'
+                desc: 'Kích thích hệ thần kinh trung ương (CNS), giảm cảm giác mỏi cơ và giúp bạn phát lực kéo (Pull-up / Muscle-up) mạnh hơn 10-15%.'
             },
             intra_elec: {
                 title: '🥥 Nước Dừa Tươi + 1 nhúm Muối Hồng (Uống trong lúc tập)',
                 macros: '70 kcal • 600mg Kali • 250mg Natri • 15g Carb nhanh',
-                desc: 'Bù ngay lượng mồ hôi mất đi khi tập ngoài công viên, ngăn chặn hoàn toàn hiện tượng chuột rút cẳng tay/bắp chuối và giữ cơ bắp luôn căng phồng (Pump).'
+                desc: 'Bù ngay lượng mồ hôi mất đi khi tập ngoài công viên, ngăn chặn hoàn toàn hiện tượng chuột rút cẳng tay và giữ cơ bắp luôn căng.'
             },
             post_shake: {
                 title: '🍌 Sinh Tố Mass Tự Nhiên: 1 Bịch Sữa Tươi + 2 Chuối + 50g Yến Mạch + 1 Muỗng Bơ Đậu Phộng',
                 macros: '610 kcal • 20g Đạm • 95g Tinh bột • 16g Béo tốt',
-                desc: 'Vũ khí tối thượng cho người gầy muốn Lean Bulk nhanh! Chỉ mất 2 phút xay và uống hết trong 1 phút, không cần nhai mỏi miệng mà nạp lượng Calo bằng cả một bữa ăn lớn.'
+                desc: 'Vũ khí tối thượng cho người gầy muốn Lean Bulk nhanh! Chỉ mất 2 phút xay và uống hết trong 1 phút, không cần nhai mỏi miệng.'
             },
             morning_detox: {
                 title: '🍋 300ml Nước Ấm + 1/2 Quả Chanh + 1 Muỗng Nhỏ Mật Ong (Ngay khi ngủ dậy)',
@@ -579,9 +758,9 @@
                 desc: 'Bù nước sau 7-8 tiếng ngủ đêm, làm sạch đường tiêu hóa và giúp cơ thể hấp thu bữa sáng tốt hơn.'
             },
             matcha_tea: {
-                title: '🍵 Trà Xanh / Matcha Latte Sữa Tươi Ít Đường (Buổi sáng hoặc Đầu giờ chiều)',
+                title: '🍵 Trà Xanh / Matcha Latte Sữa Tươi Ít Đường',
                 macros: '80 kcal • Giàu EGCG & L-Theanine',
-                desc: 'Giúp tỉnh táo êm dịu, tập trung cao độ khi tập Handstand (Trồng chuối) mà không gây tim đập nhanh hay bồn chồn như cà phê đậm.'
+                desc: 'Giúp tỉnh táo êm dịu, tập trung cao độ khi tập Handstand (Trồng chuối) mà không gây bồn chồn.'
             },
             soy_milk: {
                 title: '🥛 1-2 Hộp Sữa Đậu Nành Ít Đường hoặc Sữa Tươi Thanh Trùng',
@@ -589,18 +768,17 @@
                 desc: 'Bổ sung nhanh Đạm và Canxi ở các bữa phụ, dễ mua ở bất kỳ tiệm tạp hóa hay Circle K/GS25 nào.'
             },
             ginger_joint: {
-                title: '🫚 Nước Cam Ép / Trà Gừng Ấm Mật Ong (Sau những buổi tập nặng Planche/Lever)',
+                title: '🫚 Nước Cam Ép / Trà Gừng Ấm Mật Ong (Sau buổi tập nặng Planche/Lever)',
                 macros: '95 kcal • 120mg Vitamin C + Gingerol kháng viêm',
-                desc: 'Gừng và Vitamin C kết hợp giúp giảm sưng viêm tự nhiên ở cổ tay, cùi chỏ và khớp vai, thúc đẩy tái tạo mô liên kết.'
+                desc: 'Gừng và Vitamin C kết hợp giúp giảm sưng viêm tự nhiên ở cổ tay, cùi chỏ và khớp vai.'
             },
             night_milk: {
                 title: '🌙 200ml Sữa Tươi Ấm Không Đường (Trước khi ngủ 45 - 60 phút)',
                 macros: '120 kcal • 7g Đạm Casein + Tryptophan',
-                desc: 'Đạm Casein trong sữa tiêu hóa chậm suốt 6 tiếng giúp chống dị hóa cơ ban đêm, đồng thời Tryptophan và Magie giúp bạn ngủ sâu giấc hơn.'
+                desc: 'Đạm Casein trong sữa tiêu hóa chậm suốt 6 tiếng giúp chống dị hóa cơ ban đêm và giúp ngủ sâu.'
             }
         };
 
-        // 6 NHÓM VI CHẤT CỐT LÕI
         const MICRO_DB = [
             {
                 id: 'vitc', name: 'Vitamin C & Collagen', icon: '🍊',
@@ -640,7 +818,6 @@
             }
         ];
 
-        // CẤU HÌNH 4 BỮA ĂN TRONG NGÀY
         let mealSelections = [
             {
                 id: 'breakfast', title: 'Bữa 1: Bữa Sáng Năng Lượng', time: '07:00 - 08:00',
@@ -664,22 +841,48 @@
             }
         ];
 
-        let streetFoodLogs = []; // Danh sách món ăn ngoài đã bấm thêm hôm nay
+        let streetFoodLogs = [];
         let weightHistory = [
             { date: 'Tuần trước', weight: 54.5 },
             { date: 'Hôm nay', weight: 55.0 }
         ];
 
-        const STORAGE_KEY = 'calimacro_titanium_v4';
+        const STORAGE_KEY = 'calimacro_titanium_v5';
+        let currentPage = 1;
         let activeMicroId = 'vitc';
         let activeFoodCategory = 'all';
+        let currentFoodPage = 1;
+        const ITEMS_PER_FOOD_PAGE = 9;
         let groceryDays = 1;
         let consumedCups = 0;
-        let totalCupsNeeded = 11;
-        let currentTargetCal = 2952;
+        let totalCupsNeeded = 12;
+        let currentTargetCal = 2848;
         let currentPGram = 121;
-        let currentCGram = 455;
-        let currentFGram = 72;
+        let currentCGram = 434;
+        let currentFGram = 70;
+
+        // ==================== ĐIỀU HƯỚNG 5 TRANG SPA ====================
+        function navigatePage(pageNum) {
+            currentPage = pageNum;
+            for (let i = 1; i <= 5; i++) {
+                const sec = document.getElementById(`page-${i}`);
+                const dBtn = document.getElementById(`deskNav-${i}`);
+                const mBtn = document.getElementById(`mobNav-${i}`);
+                if (sec) {
+                    if (i === pageNum) sec.classList.remove('hidden');
+                    else sec.classList.add('hidden');
+                }
+                if (dBtn) {
+                    if (i === pageNum) dBtn.classList.add('nav-active-desktop');
+                    else dBtn.classList.remove('nav-active-desktop');
+                }
+                if (mBtn) {
+                    if (i === pageNum) mBtn.classList.add('nav-active-mobile');
+                    else mBtn.classList.remove('nav-active-mobile');
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         // ==================== LƯU & TẢI DỮ LIỆU LOCALSTORAGE ====================
         function saveState() {
@@ -690,9 +893,14 @@
                 height: document.getElementById('height').value,
                 weight: document.getElementById('weight').value,
                 bodyfat: document.getElementById('bodyfat').value,
+                bmrFormula: document.getElementById('bmrFormula').value,
                 activity: document.getElementById('activity').value,
                 goal: document.getElementById('goal').value,
                 macroMode: document.getElementById('macroMode').value,
+                workoutMins: document.getElementById('workoutMins').value,
+                weatherCond: document.getElementById('weatherCond').value,
+                sweatRate: document.getElementById('sweatRate').value,
+                suppWater: document.getElementById('suppWater').value,
                 consumedCups,
                 mealSelections,
                 streetFoodLogs,
@@ -715,9 +923,14 @@
                 if (s.height) document.getElementById('height').value = s.height;
                 if (s.weight) document.getElementById('weight').value = s.weight;
                 if (s.bodyfat) document.getElementById('bodyfat').value = s.bodyfat;
+                if (s.bmrFormula) document.getElementById('bmrFormula').value = s.bmrFormula;
                 if (s.activity) document.getElementById('activity').value = s.activity;
                 if (s.goal) document.getElementById('goal').value = s.goal;
                 if (s.macroMode) document.getElementById('macroMode').value = s.macroMode;
+                if (s.workoutMins) document.getElementById('workoutMins').value = s.workoutMins;
+                if (s.weatherCond) document.getElementById('weatherCond').value = s.weatherCond;
+                if (s.sweatRate) document.getElementById('sweatRate').value = s.sweatRate;
+                if (s.suppWater) document.getElementById('suppWater').value = s.suppWater;
                 if (typeof s.consumedCups === 'number') consumedCups = s.consumedCups;
                 if (Array.isArray(s.mealSelections) && s.mealSelections.length === 4) mealSelections = s.mealSelections;
                 if (Array.isArray(s.streetFoodLogs)) streetFoodLogs = s.streetFoodLogs;
@@ -737,78 +950,62 @@
             location.reload();
         }
 
-        // ==================== TÍNH TOÁN CHÍNH ====================
+        // ==================== THUẬT TOÁN TÍNH TOÁN CHÍNH XÁC V5 ====================
         function calculateAll() {
             const gender = document.querySelector('input[name="gender"]:checked').value;
             const dayType = document.getElementById('dayType').value;
             const age = parseFloat(document.getElementById('age').value) || 21;
             const height = parseFloat(document.getElementById('height').value) || 174;
             const weight = parseFloat(document.getElementById('weight').value) || 55;
+            const bodyfat = parseFloat(document.getElementById('bodyfat').value) || 12;
+            const bmrFormula = document.getElementById('bmrFormula').value;
             const activity = parseFloat(document.getElementById('activity').value);
             const goalOffset = parseFloat(document.getElementById('goal').value);
             const macroMode = document.getElementById('macroMode').value;
 
-            // 1. Chỉ số Calisthenics & Chuẩn Sức Mạnh Mở Khóa Skills
-            const heightM = height / 100;
-            const bmi = (weight / (heightM * heightM)).toFixed(1);
-            const idealMin = Math.round(20.5 * heightM * heightM);
-            const idealMax = Math.round(22.5 * heightM * heightM);
-            document.getElementById('bmiBadge').innerText = `BMI: ${bmi}`;
-            
-            let caliComment = '';
-            if (bmi < 19.5) {
-                caliComment = `Trọng lượng cơ thể nhẹ (${weight}kg) giúp bạn giữ <strong>Planche / Front Lever</strong> rất lợi thế. Hãy duy trì <strong>Lean Bulk (+300 kcal)</strong> để tăng khối lượng cơ nạc lên vùng <strong>${idealMin} - ${idealMax}kg</strong>!`;
-            } else if (bmi <= 23.0) {
-                caliComment = `Tỷ lệ Vàng Calisthenics! Cân nặng của bạn nằm đúng vùng tối ưu (<strong>${idealMin} - ${idealMax}kg</strong>) cho cả Sức mạnh (Weighted) và Kỹ năng (Skills).`;
+            // 1. Tính Khối lượng không mỡ (LBM - Lean Body Mass)
+            const fatMass = +(weight * (bodyfat / 100)).toFixed(1);
+            const lbm = +(weight - fatMass).toFixed(1);
+            document.getElementById('lbmValueText').innerText = `${lbm} kg (Mỡ: ${fatMass} kg)`;
+
+            // 2. Tính BMR chuẩn Y khoa (Katch-McArdle & Mifflin-St Jeor)
+            const bmrMifflin = (10 * weight) + (6.25 * height) - (5 * age) + (gender === 'male' ? 5 : -161);
+            const bmrKatch = 370 + (21.6 * lbm);
+
+            let bmr = bmrMifflin;
+            if (bmrFormula === 'katch') {
+                bmr = bmrKatch;
+                document.getElementById('formulaUsedBadge').innerText = `Công thức: Katch-McArdle (LBM ${lbm}kg)`;
+            } else if (bmrFormula === 'mifflin') {
+                bmr = bmrMifflin;
+                document.getElementById('formulaUsedBadge').innerText = `Công thức: Mifflin-St Jeor`;
             } else {
-                caliComment = `Bạn nên ưu tiên <strong>Siết cơ nét (-200 đến -400 kcal)</strong> về vùng <strong>${idealMin} - ${idealMax}kg</strong> để nhẹ người hơn khi lên xà và giảm tải cổ tay.`;
+                bmr = (bmrMifflin + bmrKatch) / 2;
+                document.getElementById('formulaUsedBadge').innerText = `Chuẩn Hybrid: Katch-McArdle + Mifflin`;
             }
-            document.getElementById('caliStatusText').innerHTML = caliComment;
 
-            // Tính chuẩn tạ kéo/đẩy theo cân nặng hiện tại
-            document.getElementById('skillBenchmarks').innerHTML = `
-                <div class="bg-slate-800/90 p-2 rounded-xl">
-                    <div class="text-emerald-400 font-bold">🔥 Mở khóa Muscle-up</div>
-                    <div class="text-slate-300">Kéo xà +${Math.round(weight * 0.25)}kg (hoặc 15 reps sạch)</div>
-                </div>
-                <div class="bg-slate-800/90 p-2 rounded-xl">
-                    <div class="text-amber-400 font-bold">⚡ Mở khóa Front Lever</div>
-                    <div class="text-slate-300">Kéo xà +${Math.round(weight * 0.45)}kg (1 RM)</div>
-                </div>
-                <div class="bg-slate-800/90 p-2 rounded-xl">
-                    <div class="text-sky-400 font-bold">🤸 Mở khóa HSPU</div>
-                    <div class="text-slate-300">Dips +${Math.round(weight * 0.35)}kg (hoặc 12 Pike Push-up)</div>
-                </div>
-                <div class="bg-slate-800/90 p-2 rounded-xl">
-                    <div class="text-rose-400 font-bold">🚀 Mở khóa Straddle Planche</div>
-                    <div class="text-slate-300">Dips +${Math.round(weight * 0.60)}kg (1 RM)</div>
-                </div>
-            `;
-
-            // 2. Tính BMR & TDEE
-            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
-            bmr += (gender === 'male') ? 5 : -161;
             const tdee = bmr * activity;
             const dayAdjustment = (dayType === 'rest') ? -200 : 0;
             currentTargetCal = Math.max(1200, Math.round(tdee + goalOffset + dayAdjustment));
 
-            // 3. Phân bổ Macro
+            // 3. Phân bổ Macro chuẩn xác (Tổng Calo từ P + C + F = 100% TargetCal)
             if (macroMode === 'cali_pro') {
                 currentPGram = Math.round(weight * 2.2);
                 currentFGram = Math.round((currentTargetCal * 0.22) / 9);
-                const rem = Math.max(400, currentTargetCal - (currentPGram * 4) - (currentFGram * 9));
-                currentCGram = Math.round(rem / 4);
+                const remCal = Math.max(400, currentTargetCal - (currentPGram * 4) - (currentFGram * 9));
+                currentCGram = Math.round(remCal / 4);
                 document.getElementById('pPerKgBadge').innerText = '2.2g/kg';
-            } else if (macroMode === 'hypertrophy') {
-                currentPGram = Math.round(weight * 2.5);
+            } else if (macroMode === 'lbm_pro') {
+                currentPGram = Math.round(lbm * 2.5);
                 currentFGram = Math.round((currentTargetCal * 0.24) / 9);
-                const rem = Math.max(400, currentTargetCal - (currentPGram * 4) - (currentFGram * 9));
-                currentCGram = Math.round(rem / 4);
-                document.getElementById('pPerKgBadge').innerText = '2.5g/kg';
+                const remCal = Math.max(400, currentTargetCal - (currentPGram * 4) - (currentFGram * 9));
+                currentCGram = Math.round(remCal / 4);
+                document.getElementById('pPerKgBadge').innerText = '2.5g/LBM';
             } else {
                 currentPGram = Math.round((currentTargetCal * 0.25) / 4);
-                currentCGram = Math.round((currentTargetCal * 0.50) / 4);
                 currentFGram = Math.round((currentTargetCal * 0.25) / 9);
+                const remCal = currentTargetCal - (currentPGram * 4) - (currentFGram * 9);
+                currentCGram = Math.round(remCal / 4);
                 document.getElementById('pPerKgBadge').innerText = `${(currentPGram / weight).toFixed(1)}g/kg`;
             }
 
@@ -841,15 +1038,106 @@
             document.getElementById('cPercentText').innerText = cPct + '%';
             document.getElementById('fPercentText').innerText = fPct + '%';
 
-            document.getElementById('fiberVal').innerText = Math.round((currentTargetCal / 1000) * 13);
+            // Chất xơ chuẩn Viện Y Học (14g / 1000 kcal)
+            document.getElementById('fiberVal').innerText = Math.round((currentTargetCal / 1000) * 14);
 
-            // 4. Tính Nước
-            const waterLiters = (weight * 0.04) + (dayType === 'train' ? 0.55 : 0.2);
-            totalCupsNeeded = Math.max(8, Math.min(18, Math.round(waterLiters / 0.25)));
-            document.getElementById('waterTargetBadge').innerText = `${(totalCupsNeeded * 0.25).toFixed(2)} Lít (${totalCupsNeeded} cốc)`;
+            // 4. CÔNG THỨC TÍNH NƯỚC ĐA BIẾN CÁ NHÂN HÓA (ACSM HYDRATION FORMULA)
+            const workoutMins = (dayType === 'rest') ? 0 : (parseFloat(document.getElementById('workoutMins').value) || 0);
+            document.getElementById('workoutMinsLabel').innerText = `${workoutMins} phút`;
+
+            const weatherMl = parseFloat(document.getElementById('weatherCond').value) || 0;
+            const sweatMl = parseFloat(document.getElementById('sweatRate').value) || 0;
+            const suppMl = parseFloat(document.getElementById('suppWater').value) || 0;
+
+            // Nhu cầu nền: Nam 35ml/kg, Nữ 31ml/kg; điều chỉnh theo độ tuổi
+            const genderFactor = (gender === 'male') ? 35 : 31;
+            const ageFactor = (age > 55) ? 0.9 : (age < 30 ? 1.02 : 1.0);
+            const baseWaterMl = Math.round(weight * genderFactor * ageFactor);
+
+            // Bù tập luyện: 12ml cho mỗi phút tập Calisthenics
+            const workoutWaterMl = Math.round(workoutMins * 12);
+
+            // Bù môi trường & mồ hôi
+            const envWaterMl = weatherMl + sweatMl;
+
+            // Bù chuyển hóa Ure khi ăn giàu đạm (>120g Protein) + Thực phẩm bổ sung
+            const proteinUreaMl = Math.max(0, Math.round((currentPGram - 100) * 1.5));
+            const totalSuppMl = suppMl + proteinUreaMl;
+
+            const exactWaterMl = Math.max(1500, baseWaterMl + workoutWaterMl + envWaterMl + totalSuppMl);
+            const waterLiters = (exactWaterMl / 1000).toFixed(2);
+            totalCupsNeeded = Math.max(6, Math.min(20, Math.round(exactWaterMl / 250)));
+
+            // Hiển thị bóc tách công thức nước ở Trang 3
+            document.getElementById('wBaseText').innerText = `${baseWaterMl.toLocaleString()} ml`;
+            document.getElementById('wWorkoutText').innerText = `+${workoutWaterMl.toLocaleString()} ml (${workoutMins}p)`;
+            document.getElementById('wEnvText').innerText = `${envWaterMl >= 0 ? '+' : ''}${envWaterMl.toLocaleString()} ml`;
+            document.getElementById('wSuppText').innerText = `+${totalSuppMl.toLocaleString()} ml`;
+            document.getElementById('wTotalExactText').innerText = `${exactWaterMl.toLocaleString()} ml (${waterLiters} Lít)`;
+            document.getElementById('waterTargetBadge').innerText = `${waterLiters} Lít (${totalCupsNeeded} cốc 250ml)`;
+            document.getElementById('quickWaterSummary').innerText = `${waterLiters} Lít (${exactWaterMl.toLocaleString()} ml)`;
+
+            // Lịch phân bổ nước theo 4 khung giờ trong ngày
+            document.getElementById('waterScheduleBoxes').innerHTML = `
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div class="font-bold text-sky-700">🌅 Sáng (07h-11h)</div>
+                    <div class="text-sm font-extrabold text-slate-900 mt-0.5">${Math.round(exactWaterMl * 0.25)} ml</div>
+                    <div class="text-[10px] text-slate-500">Sau ngủ dậy & sáng</div>
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div class="font-bold text-sky-700">☀️ Trưa - Chiều</div>
+                    <div class="text-sm font-extrabold text-slate-900 mt-0.5">${Math.round(exactWaterMl * 0.25)} ml</div>
+                    <div class="text-[10px] text-slate-500">Trước giờ tập 2 tiếng</div>
+                </div>
+                <div class="bg-sky-50 p-2.5 rounded-xl border border-sky-200">
+                    <div class="font-bold text-sky-800">🔥 Trong & Sau tập</div>
+                    <div class="text-sm font-extrabold text-sky-700 mt-0.5">${Math.round(exactWaterMl * 0.35)} ml</div>
+                    <div class="text-[10px] text-sky-600">Bù mồ hôi & điện giải</div>
+                </div>
+                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div class="font-bold text-sky-700">🌙 Buổi Tối</div>
+                    <div class="text-sm font-extrabold text-slate-900 mt-0.5">${Math.round(exactWaterMl * 0.15)} ml</div>
+                    <div class="text-[10px] text-slate-500">Uống trước ngủ 1 tiếng</div>
+                </div>
+            `;
+
+            // 5. Đánh giá Calisthenics & Chuẩn Skills (Trang 5)
+            const heightM = height / 100;
+            const bmi = (weight / (heightM * heightM)).toFixed(1);
+            const idealMin = Math.round(20.5 * heightM * heightM);
+            const idealMax = Math.round(22.5 * heightM * heightM);
+            document.getElementById('bmiBadge').innerText = `BMI: ${bmi} • LBM: ${lbm}kg`;
+            
+            let caliComment = '';
+            if (bmi < 19.5) {
+                caliComment = `Trọng lượng cơ thể nhẹ (${weight}kg) giúp bạn giữ <strong>Planche / Front Lever</strong> rất lợi thế. Hãy duy trì <strong>Lean Bulk (+300 kcal)</strong> để tăng khối lượng cơ nạc lên vùng <strong>${idealMin} - ${idealMax}kg</strong>!`;
+            } else if (bmi <= 23.0) {
+                caliComment = `Tỷ lệ Vàng Calisthenics! Cân nặng của bạn nằm đúng vùng tối ưu (<strong>${idealMin} - ${idealMax}kg</strong>) cho cả Sức mạnh (Weighted) và Kỹ năng (Skills).`;
+            } else {
+                caliComment = `Bạn nên ưu tiên <strong>Siết cơ nét (-200 đến -400 kcal)</strong> về vùng <strong>${idealMin} - ${idealMax}kg</strong> để nhẹ người hơn khi lên xà và giảm tải cổ tay.`;
+            }
+            document.getElementById('caliStatusText').innerHTML = caliComment;
+
+            document.getElementById('skillBenchmarks').innerHTML = `
+                <div class="bg-slate-800/90 p-2.5 rounded-xl">
+                    <div class="text-emerald-400 font-bold">🔥 Mở khóa Muscle-up</div>
+                    <div class="text-slate-300 mt-0.5">Kéo xà +${Math.round(weight * 0.25)}kg (hoặc 15 reps sạch)</div>
+                </div>
+                <div class="bg-slate-800/90 p-2.5 rounded-xl">
+                    <div class="text-amber-400 font-bold">⚡ Mở khóa Front Lever</div>
+                    <div class="text-slate-300 mt-0.5">Kéo xà +${Math.round(weight * 0.45)}kg (1 RM)</div>
+                </div>
+                <div class="bg-slate-800/90 p-2.5 rounded-xl">
+                    <div class="text-sky-400 font-bold">🤸 Mở khóa HSPU</div>
+                    <div class="text-slate-300 mt-0.5">Dips +${Math.round(weight * 0.35)}kg (hoặc 12 Pike Push-up)</div>
+                </div>
+                <div class="bg-slate-800/90 p-2.5 rounded-xl">
+                    <div class="text-rose-400 font-bold">🚀 Mở khóa Straddle Planche</div>
+                    <div class="text-slate-300 mt-0.5">Dips +${Math.round(weight * 0.60)}kg (1 RM)</div>
+                </div>
+            `;
+
             renderWaterCups();
-
-            // 5. Render toàn bộ giao diện
             renderSelectedDrink();
             renderWeightHistory();
             renderMicronutrients();
@@ -861,7 +1149,7 @@
             saveState();
         }
 
-        // ==================== ĐỒ UỐNG & NƯỚC ====================
+        // ==================== BỘ ĐẾM NƯỚC & ĐỒ UỐNG ====================
         function renderSelectedDrink() {
             const key = document.getElementById('drinkSelector').value;
             const d = DRINK_RECIPES[key] || DRINK_RECIPES.pre_coffee;
@@ -884,11 +1172,11 @@
             for (let i = 0; i < totalCupsNeeded; i++) {
                 const active = i < consumedCups;
                 const btn = document.createElement('button');
-                btn.className = `p-2 rounded-xl border text-center transition flex flex-col items-center justify-center ${
+                btn.className = `p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center ${
                     active ? 'cup-active font-bold shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-sky-300'
                 }`;
                 btn.onclick = () => toggleCup(i);
-                btn.innerHTML = `<i class="fa-solid fa-glass-water text-sm mb-0.5"></i><span class="text-[9px]">250ml</span>`;
+                btn.innerHTML = `<i class="fa-solid fa-glass-water text-base mb-0.5"></i><span class="text-[10px]">250ml</span>`;
                 box.appendChild(btn);
             }
             document.getElementById('waterConsumedText').innerText = `${(consumedCups * 0.25).toFixed(2)} / ${(totalCupsNeeded * 0.25).toFixed(2)} Lít`;
@@ -900,7 +1188,7 @@
             const now = new Date();
             const dateStr = `${now.getDate()}/${now.getMonth() + 1}`;
             weightHistory.push({ date: `Ngày ${dateStr}`, weight: w });
-            if (weightHistory.length > 10) weightHistory.shift();
+            if (weightHistory.length > 12) weightHistory.shift();
             renderWeightHistory();
             saveState();
         }
@@ -916,18 +1204,18 @@
             box.innerHTML = weightHistory.slice().reverse().map((item, revIdx) => {
                 const realIdx = weightHistory.length - 1 - revIdx;
                 return `
-                    <div class="flex justify-between items-center bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-center bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200">
                         <span class="text-slate-600 font-medium">${item.date}</span>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2.5">
                             <strong class="text-emerald-700 font-extrabold">${item.weight} kg</strong>
-                            <button onclick="removeWeightEntry(${realIdx})" class="text-slate-400 hover:text-rose-500 text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                            <button onclick="removeWeightEntry(${realIdx})" class="text-slate-400 hover:text-rose-500 text-xs"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // ==================== BẢNG VI CHẤT TƯƠNG TÁC ====================
+        // ==================== VI CHẤT TƯƠNG TÁC ====================
         function selectMicro(id) {
             activeMicroId = id;
             renderMicronutrients();
@@ -959,7 +1247,7 @@
             `;
         }
 
-        // ==================== GHI NHẬN ĂN NGOÀI HÀNG QUÁN (STREET FOOD QUICK LOG) ====================
+        // ==================== GHI NHẬN ĂN NGOÀI HÀNG QUÁN ====================
         function renderStreetFoodSelector() {
             const sel = document.getElementById('streetFoodSelect');
             sel.innerHTML = FOOD_DB.street.map(s =>
@@ -1001,7 +1289,7 @@
             `).join('');
         }
 
-        // ==================== TRÌNH LẮP RÁP THỰC ĐƠN 4 BỮA (ĐẠM ĐỘNG VẬT CHUẨN 100%) ====================
+        // ==================== THUẬT TOÁN GIẢI KHẨU PHẦN BỮA ĂN CHÍNH XÁC 100% ====================
         function findFood(category, id) {
             return FOOD_DB[category].find(f => f.id === id) || FOOD_DB[category][0];
         }
@@ -1011,6 +1299,37 @@
             if (food.unit === 'g') return `${gRound}g`;
             const count = (grams / food.unitWeight).toFixed(1).replace('.0', '');
             return `${count} ${food.unit} (~${gRound}g)`;
+        }
+
+        function solveMealPortions(meal) {
+            const targetP = currentPGram * meal.calRatio;
+            const targetC = currentCGram * meal.calRatio;
+            const targetF = currentFGram * meal.calRatio;
+
+            const pFood = findFood('protein', meal.pId);
+            const cFood = findFood('carb', meal.cId);
+            const fFood = findFood('fat', meal.fId);
+            const vFood = findFood('veg', meal.vId);
+
+            // 1. Rau/Trái cây cố định 150g mỗi bữa
+            const vGrams = 150;
+            const cFromVeg = (vGrams / 100) * vFood.c;
+
+            // 2. Nguồn Đạm chính cung cấp đủ 100% targetP (Đạm hoàn chỉnh giàu Leucine)
+            const pGrams = Math.max(35, (targetP / pFood.p) * 100);
+            const cFromProtein = (pGrams / 100) * pFood.c;
+            const fFromProtein = (pGrams / 100) * pFood.f;
+
+            // 3. Nguồn Tinh bột: trừ đi lượng Carb đã có trong Rau và món Đạm
+            const netCNeeded = Math.max(15, targetC - cFromVeg - cFromProtein);
+            const cGrams = Math.max(30, (netCNeeded / cFood.c) * 100);
+            const fFromCarb = (cGrams / 100) * cFood.f;
+
+            // 4. Nguồn Béo: trừ đi lượng Béo tự nhiên đã có sẵn trong Thịt/Trứng và Yến mạch
+            const netFNeeded = Math.max(3, targetF - fFromProtein - fFromCarb);
+            const fGrams = Math.max(5, (netFNeeded / fFood.f) * 100);
+
+            return { pFood, cFood, fFood, vFood, pGrams, cGrams, fGrams, vGrams, targetP, targetC, targetF };
         }
 
         function updateMealFood(mealIndex, type, newFoodId) {
@@ -1039,25 +1358,7 @@
             const container = document.getElementById('interactiveMealsContainer');
             container.innerHTML = mealSelections.map((meal, idx) => {
                 const mealCal = Math.round(currentTargetCal * meal.calRatio);
-                const targetP = currentPGram * meal.calRatio;
-                const targetC = currentCGram * meal.calRatio;
-                const targetF = currentFGram * meal.calRatio;
-
-                const pFood = findFood('protein', meal.pId);
-                const cFood = findFood('carb', meal.cId);
-                const fFood = findFood('fat', meal.fId);
-                const vFood = findFood('veg', meal.vId);
-
-                // THUẬT TOÁN CHUẨN CALISTHENICS:
-                // 1. Nguồn Đạm chính cung cấp đủ 100% targetP của bữa đó (Đạm hoàn chỉnh giàu Leucine)
-                const pFoodGrams = Math.max(40, (targetP / pFood.p) * 100);
-                // 2. Nguồn Tinh bột cung cấp đủ 100% targetC của bữa đó
-                const cFoodGrams = Math.max(40, (targetC / cFood.c) * 100);
-                // 3. Nguồn Béo: tính phần béo còn thiếu sau khi trừ đi lượng mỡ tự nhiên có sẵn trong Thịt/Trứng
-                const fatFromMeat = (pFoodGrams / 100) * pFood.f;
-                const netFNeeded = Math.max(5, targetF - (fatFromMeat * 0.6));
-                const fFoodGrams = Math.max(8, (netFNeeded / fFood.f) * 100);
-                const vFoodGrams = 150;
+                const solved = solveMealPortions(meal);
 
                 return `
                     <div class="p-4 sm:p-5 rounded-2xl border transition ${meal.eaten ? 'meal-checked' : 'bg-slate-50/70 border-slate-200 hover:border-slate-300'}">
@@ -1067,7 +1368,7 @@
                                     <span class="font-extrabold text-slate-900 text-sm sm:text-base">${meal.title}</span>
                                     <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">${meal.time}</span>
                                 </div>
-                                <span class="text-xs text-slate-500 font-medium">${meal.badge} • Mục tiêu bữa: <strong class="text-slate-800">${mealCal} kcal</strong> (${Math.round(targetP)}g Đạm • ${Math.round(targetC)}g Tinh bột • ${Math.round(targetF)}g Béo)</span>
+                                <span class="text-xs text-slate-500 font-medium">${meal.badge} • Mục tiêu bữa: <strong class="text-slate-800">${mealCal} kcal</strong> (${Math.round(solved.targetP)}g Đạm • ${Math.round(solved.targetC)}g Tinh bột • ${Math.round(solved.targetF)}g Béo)</span>
                             </div>
 
                             <button onclick="toggleMealEaten(${idx})" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center ${
@@ -1079,52 +1380,52 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                            <!-- Chọn Đạm -->
+                            <!-- Chọn Đạm (Fix lỗi rớt dòng bằng whitespace-nowrap) -->
                             <div class="bg-white p-3 rounded-xl border border-rose-200 shadow-sm">
-                                <div class="flex justify-between items-center text-[11px] font-bold text-rose-700 mb-1">
-                                    <span>🥩 NGUỒN ĐẠM CHÍNH</span>
-                                    <span>${Math.round(targetP)}g P</span>
+                                <div class="flex justify-between items-center text-[11px] font-bold text-rose-700 mb-1.5 gap-1">
+                                    <span class="truncate">🥩 ĐẠM CHÍNH</span>
+                                    <span class="whitespace-nowrap bg-rose-50 px-1.5 py-0.5 rounded">${Math.round(solved.targetP)}g P</span>
                                 </div>
                                 <select onchange="updateMealFood(${idx}, 'pId', this.value)" class="w-full text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-lg px-2 py-1.5 mb-2 focus:outline-none">
                                     ${FOOD_DB.protein.map(f => `<option value="${f.id}" ${f.id === meal.pId ? 'selected' : ''}>${f.name}</option>`).join('')}
                                 </select>
-                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-rose-700 text-sm">${formatPortion(pFoodGrams, pFood)}</strong></div>
+                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-rose-700 text-sm">${formatPortion(solved.pGrams, solved.pFood)}</strong></div>
                             </div>
 
                             <!-- Chọn Tinh bột -->
                             <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-sm">
-                                <div class="flex justify-between items-center text-[11px] font-bold text-amber-700 mb-1">
-                                    <span>🍚 NGUỒN TINH BỘT</span>
-                                    <span>${Math.round(targetC)}g C</span>
+                                <div class="flex justify-between items-center text-[11px] font-bold text-amber-700 mb-1.5 gap-1">
+                                    <span class="truncate">🍚 TINH BỘT</span>
+                                    <span class="whitespace-nowrap bg-amber-50 px-1.5 py-0.5 rounded">${Math.round(solved.targetC)}g C</span>
                                 </div>
                                 <select onchange="updateMealFood(${idx}, 'cId', this.value)" class="w-full text-xs font-bold text-slate-800 bg-amber-50/60 border border-amber-200 rounded-lg px-2 py-1.5 mb-2 focus:outline-none">
                                     ${FOOD_DB.carb.map(f => `<option value="${f.id}" ${f.id === meal.cId ? 'selected' : ''}>${f.name}</option>`).join('')}
                                 </select>
-                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-amber-700 text-sm">${formatPortion(cFoodGrams, cFood)}</strong></div>
+                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-amber-700 text-sm">${formatPortion(solved.cGrams, solved.cFood)}</strong></div>
                             </div>
 
                             <!-- Chọn Béo -->
                             <div class="bg-white p-3 rounded-xl border border-sky-200 shadow-sm">
-                                <div class="flex justify-between items-center text-[11px] font-bold text-sky-700 mb-1">
-                                    <span>🥑 CHẤT BÉO TỐT</span>
-                                    <span>~${Math.round(targetF)}g F</span>
+                                <div class="flex justify-between items-center text-[11px] font-bold text-sky-700 mb-1.5 gap-1">
+                                    <span class="truncate">🥑 CHẤT BÉO TỐT</span>
+                                    <span class="whitespace-nowrap bg-sky-50 px-1.5 py-0.5 rounded">~${Math.round(solved.targetF)}g F</span>
                                 </div>
                                 <select onchange="updateMealFood(${idx}, 'fId', this.value)" class="w-full text-xs font-bold text-slate-800 bg-sky-50/60 border border-sky-200 rounded-lg px-2 py-1.5 mb-2 focus:outline-none">
                                     ${FOOD_DB.fat.map(f => `<option value="${f.id}" ${f.id === meal.fId ? 'selected' : ''}>${f.name}</option>`).join('')}
                                 </select>
-                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-sky-700 text-sm">${formatPortion(fFoodGrams, fFood)}</strong></div>
+                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-sky-700 text-sm">${formatPortion(solved.fGrams, solved.fFood)}</strong></div>
                             </div>
 
                             <!-- Chọn Rau & Trái cây -->
                             <div class="bg-white p-3 rounded-xl border border-emerald-200 shadow-sm">
-                                <div class="flex justify-between items-center text-[11px] font-bold text-emerald-700 mb-1">
-                                    <span>🥦 RAU CỦ & TRÁI CÂY</span>
-                                    <span>~10g Xơ</span>
+                                <div class="flex justify-between items-center text-[11px] font-bold text-emerald-700 mb-1.5 gap-1">
+                                    <span class="truncate">🥦 RAU & TRÁI CÂY</span>
+                                    <span class="whitespace-nowrap bg-emerald-50 px-1.5 py-0.5 rounded">~10g Xơ</span>
                                 </div>
                                 <select onchange="updateMealFood(${idx}, 'vId', this.value)" class="w-full text-xs font-bold text-slate-800 bg-emerald-50/60 border border-emerald-200 rounded-lg px-2 py-1.5 mb-2 focus:outline-none">
                                     ${FOOD_DB.veg.map(f => `<option value="${f.id}" ${f.id === meal.vId ? 'selected' : ''}>${f.name}</option>`).join('')}
                                 </select>
-                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-emerald-700 text-sm">${vFoodGrams}g</strong></div>
+                                <div class="text-xs text-slate-600">Khẩu phần: <strong class="text-emerald-700 text-sm">${solved.vGrams}g</strong></div>
                             </div>
                         </div>
                     </div>
@@ -1160,16 +1461,27 @@
             document.getElementById('eatenProgressBar').style.width = pct + '%';
         }
 
-        // ==================== ĐẠI TỪ ĐIỂN THỰC PHẨM (ENCYCLOPEDIA) ====================
+        // ==================== ĐẠI TỪ ĐIỂN THỰC PHẨM CÓ PHÂN TRANG (PAGINATION) ====================
         function setFoodCategory(cat) {
             activeFoodCategory = cat;
+            currentFoodPage = 1;
             document.querySelectorAll('.food-cat-btn').forEach(btn => {
                 if (btn.dataset.cat === cat) {
-                    btn.className = 'food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-900 text-white shrink-0 font-bold';
+                    btn.className = 'food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-900 text-white font-bold';
                 } else {
-                    btn.className = 'food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0 font-bold';
+                    btn.className = 'food-cat-btn px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold';
                 }
             });
+            renderEncyclopedia();
+        }
+
+        function resetFoodPageAndRender() {
+            currentFoodPage = 1;
+            renderEncyclopedia();
+        }
+
+        function goToFoodPage(p) {
+            currentFoodPage = p;
             renderEncyclopedia();
         }
 
@@ -1180,7 +1492,7 @@
 
             let totalCount = 0;
             ['protein', 'carb', 'fat', 'veg', 'street'].forEach(c => totalCount += FOOD_DB[c].length);
-            document.getElementById('totalFoodCountBadge').innerText = totalCount + '+';
+            document.getElementById('totalFoodCountBadge').innerText = totalCount;
 
             cats.forEach(cat => {
                 FOOD_DB[cat].forEach(item => {
@@ -1189,6 +1501,12 @@
                     }
                 });
             });
+
+            const totalPages = Math.max(1, Math.ceil(list.length / ITEMS_PER_FOOD_PAGE));
+            if (currentFoodPage > totalPages) currentFoodPage = totalPages;
+
+            const startIdx = (currentFoodPage - 1) * ITEMS_PER_FOOD_PAGE;
+            const pageItems = list.slice(startIdx, startIdx + ITEMS_PER_FOOD_PAGE);
 
             const badgeColors = {
                 protein: 'bg-rose-100 text-rose-800 border-rose-200',
@@ -1199,7 +1517,7 @@
             };
 
             const grid = document.getElementById('encyclopediaGrid');
-            grid.innerHTML = list.map(item => {
+            grid.innerHTML = pageItems.map(item => {
                 let targetForOneMeal = '';
                 if (item.cat === 'protein') {
                     const g = Math.round(((currentPGram / 3) / item.p) * 100);
@@ -1211,7 +1529,7 @@
                     const g = Math.round(((currentFGram / 3) / item.f) * 100);
                     targetForOneMeal = `Dùng <strong>${formatPortion(g, item)}</strong> = đủ Chất béo 1 bữa (~${Math.round(currentFGram/3)}g F)`;
                 } else if (item.cat === 'street') {
-                    targetForOneMeal = `1 ${item.unit} cung cấp <strong>${Math.round((item.cal / currentTargetCal) * 100)}%</strong> tổng Calo ngày của bạn`;
+                    targetForOneMeal = `1 ${item.unit} chiếm <strong>${Math.round((item.cal / currentTargetCal) * 100)}%</strong> tổng Calo ngày của bạn`;
                 } else {
                     targetForOneMeal = `Ăn <strong>150g - 200g/bữa</strong> để nạp đủ Vitamin & Chất xơ`;
                 }
@@ -1219,14 +1537,14 @@
                 const unitLabel = item.cat === 'street' ? `${item.cal} kcal / 1 ${item.unit}` : `${item.cal} kcal / 100g`;
 
                 return `
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-400 transition flex flex-col justify-between">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-400 transition flex flex-col justify-between">
                         <div>
-                            <div class="flex justify-between items-start gap-2 mb-1">
+                            <div class="flex justify-between items-start gap-2 mb-1.5">
                                 <h3 class="font-extrabold text-slate-900 text-xs">${item.name}</h3>
                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${badgeColors[item.cat]}">${unitLabel}</span>
                             </div>
-                            <p class="text-[11px] text-slate-500 mb-2">${item.note}</p>
-                            <div class="flex gap-2 text-[11px] font-bold bg-white p-1.5 rounded-lg border border-slate-200 mb-2 justify-around">
+                            <p class="text-[11px] text-slate-500 mb-2.5">${item.note}</p>
+                            <div class="flex gap-2 text-[11px] font-bold bg-white p-1.5 rounded-lg border border-slate-200 mb-2.5 justify-around">
                                 <span class="text-rose-600">Đạm: ${item.p}g</span>
                                 <span class="text-amber-600">Carb: ${item.c}g</span>
                                 <span class="text-sky-600">Béo: ${item.f}g</span>
@@ -1238,9 +1556,23 @@
                     </div>
                 `;
             }).join('');
+
+            // Render nút phân trang
+            document.getElementById('foodPageInfoText').innerText = `Đang hiển thị trang ${currentFoodPage} / ${totalPages} (Tổng ${list.length} món)`;
+            const btnBox = document.getElementById('foodPaginationButtons');
+            let btnsHtml = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const active = (p === currentFoodPage);
+                btnsHtml += `
+                    <button onclick="goToFoodPage(${p})" class="w-8 h-8 rounded-xl text-xs font-extrabold transition ${
+                        active ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }">${p}</button>
+                `;
+            }
+            btnBox.innerHTML = btnsHtml;
         }
 
-        // ==================== DANH SÁCH ĐI CHỢ TỰ ĐỘNG ====================
+        // ==================== DANH SÁCH ĐI CHỢ (QUY ĐỔI GẠO KHÔ / ĐỒ SỐNG) ====================
         function setGroceryDays(days) {
             groceryDays = days;
             [1, 3, 7].forEach(d => {
@@ -1255,30 +1587,18 @@
         function renderGroceryList() {
             const totals = {};
             const addFoodTotal = (food, grams) => {
-                if (!totals[food.id]) totals[food.id] = { food, grams: 0 };
-                totals[food.id].grams += grams * groceryDays;
+                const buyGrams = food.rawFactor ? (grams * food.rawFactor) : grams;
+                const displayName = food.rawName ? `${food.rawName} (để nấu ${food.name})` : food.name;
+                if (!totals[food.id]) totals[food.id] = { food, displayName, grams: 0 };
+                totals[food.id].grams += buyGrams * groceryDays;
             };
 
             mealSelections.forEach(meal => {
-                const targetP = currentPGram * meal.calRatio;
-                const targetC = currentCGram * meal.calRatio;
-                const targetF = currentFGram * meal.calRatio;
-
-                const pFood = findFood('protein', meal.pId);
-                const cFood = findFood('carb', meal.cId);
-                const fFood = findFood('fat', meal.fId);
-                const vFood = findFood('veg', meal.vId);
-
-                const pGrams = Math.max(40, (targetP / pFood.p) * 100);
-                const cGrams = Math.max(40, (targetC / cFood.c) * 100);
-                const fatFromMeat = (pGrams / 100) * pFood.f;
-                const netF = Math.max(5, targetF - (fatFromMeat * 0.6));
-                const fGrams = Math.max(8, (netF / fFood.f) * 100);
-
-                addFoodTotal(pFood, pGrams);
-                addFoodTotal(cFood, cGrams);
-                addFoodTotal(fFood, fGrams);
-                addFoodTotal(vFood, 150);
+                const solved = solveMealPortions(meal);
+                addFoodTotal(solved.pFood, solved.pGrams);
+                addFoodTotal(solved.cFood, solved.cGrams);
+                addFoodTotal(solved.fFood, solved.fGrams);
+                addFoodTotal(solved.vFood, solved.vGrams);
             });
 
             const container = document.getElementById('groceryListContainer');
@@ -1287,48 +1607,15 @@
                     ? `${(entry.grams / 1000).toFixed(2)} kg`
                     : `${Math.round(entry.grams)} g`;
                 return `
-                    <label class="flex items-center space-x-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-emerald-50/40 transition">
-                        <input type="checkbox" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer">
+                    <label class="flex items-center space-x-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-emerald-50/40 transition">
+                        <input type="checkbox" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer shrink-0">
                         <div class="text-xs">
-                            <div class="font-bold text-slate-800">${entry.food.name}</div>
-                            <div class="text-emerald-700 font-extrabold">Cần mua: ${kgOrGram}</div>
+                            <div class="font-bold text-slate-800">${entry.displayName}</div>
+                            <div class="text-emerald-700 font-extrabold mt-0.5">Cần mua: ${kgOrGram}</div>
                         </div>
                     </label>
                 `;
             }).join('');
-        }
-
-        // ==================== ĐIỀU HƯỚNG TAB & MOBILE ====================
-        function switchMainTab(tab) {
-            const sections = {
-                meals: document.getElementById('section-meals'),
-                encyclopedia: document.getElementById('section-encyclopedia'),
-                cali: document.getElementById('section-cali'),
-                grocery: document.getElementById('section-grocery')
-            };
-            ['all', 'meals', 'encyclopedia', 'cali', 'grocery'].forEach(t => {
-                const btn = document.getElementById(`tabBtn-${t}`);
-                if (btn) {
-                    btn.className = (t === tab)
-                        ? 'px-3 py-1.5 rounded-lg bg-white text-emerald-700 shadow-sm transition'
-                        : 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
-                }
-            });
-
-            if (tab === 'all') {
-                Object.values(sections).forEach(s => s && s.classList.remove('hidden'));
-            } else {
-                Object.entries(sections).forEach(([k, s]) => {
-                    if (!s) return;
-                    if (k === tab) s.classList.remove('hidden');
-                    else s.classList.add('hidden');
-                });
-            }
-        }
-
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         window.onload = () => {
